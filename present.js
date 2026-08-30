@@ -591,6 +591,18 @@ if (stage) {
     }, { passive: false });
 }
 
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            console.warn("Fullscreen request:", err);
+        });
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
+    }
+}
+
 window.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && open) { closeDialog(); return; }
     if (open) return;
@@ -598,6 +610,12 @@ window.addEventListener("keydown", (e) => {
     else if (e.key === "ArrowLeft") { e.preventDefault(); step(-1); }
     else if (e.key === " ") { e.preventDefault(); playing = !playing; syncPlay(); }
     else if (e.key === "Enter") { e.preventDefault(); openDialog(); }
+    else if (e.key === "f" || e.key === "F") { e.preventDefault(); toggleFullscreen(); }
+});
+
+document.addEventListener("dblclick", (e) => {
+    if (e.target.closest("button, input, textarea, a, .dialog")) return;
+    toggleFullscreen();
 });
 
 if (document.getElementById("prev")) document.getElementById("prev").onclick = () => step(-1);

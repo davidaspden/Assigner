@@ -1572,11 +1572,14 @@
     let features = 'popup=1';
     if (availableScreens.length > 0 && selectedMonitor !== null) {
       const screen = availableScreens[selectedMonitor];
-      features = `popup=1,left=${screen.availLeft},top=${screen.availTop},width=${screen.width},height=${screen.height}`;
+      features = `popup=1,left=${screen.availLeft},top=${screen.availTop},width=${screen.availWidth},height=${screen.availHeight}`;
     } else {
       features = '_blank';
     }
-    window.open(selectedView, 'AssignerPresentation', features);
+    const win = window.open(selectedView, 'AssignerPresentation', features);
+    if (win) {
+      win.focus();
+    }
   }
 </script>
 

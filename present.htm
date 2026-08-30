@@ -209,6 +209,11 @@
         <div style="font-size: 0.62rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 3px;">Mobile Roster</div>
       </div>
       <div id="live-clock" style="font-family: Fraunces, 'Times New Roman', serif; font-variant-numeric: tabular-nums; font-size: 1.15rem; font-weight: 500; color: var(--muted); letter-spacing: 0.05em; background: rgba(20, 18, 16, 0.75); padding: 4px 12px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px);">00:00:00</div>
+      <button id="fullscreen-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen (F)" style="background: rgba(20, 18, 16, 0.75); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 7px 9px; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+        </svg>
+      </button>
     </div>
   </div>
 
@@ -421,6 +426,26 @@
 
       isFirstLoad = false;
     }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => console.warn("Fullscreen request:", err));
+      } else if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "f" || e.key === "F") {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    });
+
+    document.addEventListener("dblclick", (e) => {
+      if (e.target.closest("button, input, textarea, a")) return;
+      toggleFullscreen();
+    });
 
     setInterval(render, 1000);
     render();
