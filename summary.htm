@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Staff Assignment Summary</title>
+  <meta name="theme-color" content="#141210" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%23181614'/%3E%3Crect x='8' y='14' width='16' height='22' rx='3.5' transform='rotate(-12 16 25)' fill='%2338bdf8' opacity='0.85'/%3E%3Crect x='24' y='14' width='16' height='22' rx='3.5' transform='rotate(12 32 25)' fill='%23a855f7' opacity='0.85'/%3E%3Crect x='15' y='11' width='18' height='24' rx='4' fill='%23f59e0b' stroke='%23181614' stroke-width='1.5'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Outfit:wght@400;500;600;700&display=swap" />
+  <style>
+    :root {
+      --bg: #0e0d0b;
+      --card-bg: #181614;
+      --border: rgba(255, 255, 255, 0.08);
+      --fg: #f5f2eb;
+      --muted: #9e9689;
+      --accent: #f59e0b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px 14px 40px;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Outfit, system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-top: 8px;
+    }
+    .app-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      background: rgba(245, 158, 11, 0.12);
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    h1 {
+      margin: 0 0 6px 0;
+      font-family: Fraunces, serif;
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--fg);
+    }
+    .stats-bar {
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .group-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .group-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+    .group-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .group-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--fg);
+    }
+    .count-pill {
+      background: rgba(255,255,255,0.08);
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+    .name-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .name-tag {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: #e5e0d8;
+    }
+    .empty-msg {
+      font-style: italic;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .timestamp {
+      text-align: center;
+      font-size: 0.78rem;
+      color: #666;
+      margin-top: 24px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="app-badge">Live Roster</div>
+    <h1 id="summary-title">Staff Assignment</h1>
+    <div id="summary-stats" class="stats-bar">Loading...</div>
+  </header>
+
+  <main id="groups-container" class="group-list">
+    <!-- Populated via hash parameter -->
+  </main>
+
+  <div class="timestamp" id="load-time"></div>
+</div>
+
+<script>
+  function parseHash() {
+    let raw = window.location.hash.substring(1);
+    if (!raw) {
+      // Fallback to localStorage if opened on same device
+      const saved = localStorage.getItem("assignerData");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          renderSummary(parsed.title || "Staff Assignment", (parsed.groups || []).map(g => ({
+            title: g.title,
+            assigned: g.assigned || []
+          })));
+          return;
+        } catch(e) {}
+      }
+      document.getElementById("groups-container").innerHTML = `<div class="group-card" style="text-align:center;"><p class="empty-msg">No roster data found in link.</p></div>`;
+      document.getElementById("summary-stats").innerText = "";
+      return;
+    }
+
+    try {
+      // Compact parser: T=Title&G=Group1:Alice,Bob|Group2:Charlie
+      let title = "Staff Assignment";
+      let groups = [];
+
+      if (raw.startsWith("T=") || raw.startsWith("t=") || raw.includes("&G=") || raw.includes("&g=")) {
+        const params = new URLSearchParams(raw);
+        title = decodeURIComponent(params.get("T") || params.get("t") || "Staff Assignment");
+        const rawG = params.get("G") || params.get("g") || "";
+        groups = rawG.split("|").filter(s => s).map(item => {
+          const parts = item.split(":");
+          const gTitle = decodeURIComponent(parts[0] || "Untitled");
+          const rawNames = parts[1] || "";
+          const names = rawNames ? rawNames.split(",").map(n => decodeURIComponent(n)).filter(n => n) : [];
+          return { title: gTitle, assigned: names };
+        });
+      } else {
+        // Fallback: direct pipe format: Title~Group1:Alice,Bob~Group2:Charlie
+        const sections = raw.split("~");
+        if (sections.length > 1) {
+          title = decodeURIComponent(sections[0] || "Staff Assignment");
+          groups = sections.slice(1).map(item => {
+            const parts = item.split(":");
+            const gTitle = decodeURIComponent(parts[0] || "Untitled");
+            const names = parts[1] ? parts[1].split(",").map(n => decodeURIComponent(n)).filter(n => n) : [];
+            return { title: gTitle, assigned: names };
+          });
+        }
+      }
+
+      renderSummary(title, groups);
+    } catch(err) {
+      console.error(err);
+      document.getElementById("groups-container").innerHTML = `<div class="group-card"><p class="empty-msg">Error reading roster link.</p></div>`;
+    }
+  }
+
+  function renderSummary(title, groups) {
+    document.getElementById("summary-title").innerText = title;
+    
+    const container = document.getElementById("groups-container");
+    container.innerHTML = "";
+
+    let totalPeople = 0;
+
+    groups.forEach(g => {
+      totalPeople += (g.assigned || []).length;
+      const card = document.createElement("div");
+      card.className = "group-card";
+      
+      const namesHtml = (g.assigned && g.assigned.length > 0)
+        ? `<div class="name-list">${g.assigned.map(n => `<div class="name-tag">${n}</div>`).join('')}</div>`
+        : `<div class="empty-msg">No staff assigned</div>`;
+
+      card.innerHTML = `
+        <div class="group-header">
+          <span class="group-title">${g.title}</span>
+          <span class="count-pill">${(g.assigned || []).length}</span>
+        </div>
+        ${namesHtml}
+      `;
+      container.appendChild(card);
+    });
+
+    const peopleLabel = totalPeople === 1 ? "Person" : "People";
+    const groupLabel = groups.length === 1 ? "Group" : "Groups";
+    document.getElementById("summary-stats").innerText = `${totalPeople} ${peopleLabel} across ${groups.length} ${groupLabel}`;
+    document.getElementById("load-time").innerText = `Updated ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  }
+
+  window.addEventListener("hashchange", parseHash);
+  parseHash();
+</script>
+</body>
+</html>

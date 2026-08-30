@@ -173,12 +173,21 @@
 
 <body>
 
-  <h1 id="main-title"
-    style="text-align: center; margin: 24px 0 0 0; z-index: 2; position: relative; font-size: 2.6em; color: var(--fg); text-shadow: 2px 2px 8px rgba(0,0,0,0.6);">
-  </h1>
-  <p id="stats-subtitle"
-    style="text-align: center; margin: 6px 0 16px 0; z-index: 2; position: relative; font-size: 1em; color: var(--muted); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;">
-  </p>
+  <div style="position: relative; text-align: center;">
+    <h1 id="main-title"
+      style="margin: 24px 0 0 0; z-index: 2; position: relative; font-size: 2.6em; color: var(--fg); text-shadow: 2px 2px 8px rgba(0,0,0,0.6);">
+    </h1>
+    <p id="stats-subtitle"
+      style="margin: 6px 0 16px 0; z-index: 2; position: relative; font-size: 1em; color: var(--muted); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;">
+    </p>
+    <div style="position: absolute; top: 1.25rem; right: 1.5rem; display: flex; gap: 8px; align-items: flex-start; z-index: 25;">
+      <div id="permanent-qr-card" style="background: rgba(20, 18, 16, 0.75); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 8px; padding: 5px 6px; text-align: center; backdrop-filter: blur(4px); box-shadow: 0 4px 15px rgba(0,0,0,0.35);">
+        <div id="permanent-qr" style="background: #ffffff; padding: 4px; border-radius: 4px; display: flex; align-items: center; justify-content: center;"></div>
+        <div style="font-size: 0.62rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 3px;">Mobile Roster</div>
+      </div>
+      <div id="live-clock" style="font-family: Fraunces, 'Times New Roman', serif; font-variant-numeric: tabular-nums; font-size: 1.15rem; font-weight: 500; color: var(--muted); letter-spacing: 0.05em; background: rgba(20, 18, 16, 0.75); padding: 4px 12px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px);">00:00:00</div>
+    </div>
+  </div>
 
   <div class="main-content" id="cards-container" role="listbox" aria-label="Assigned to Departments">
     <!-- Cards populated here -->
@@ -186,14 +195,110 @@
 
   <div class="banner" id="banner"></div>
 
+  <script src="qrcode.min.js"></script>
   <script>
     let isFirstLoad = true;
+    let latestData = null;
+    let lastQrPayload = null;
+
+    function packSummaryPayload(d) {
+      const t = encodeURIComponent(d.title || "Staff Assignment");
+      const gList = (d.groups || []).map(g => {
+        const gTitle = encodeURIComponent(g.title || "Untitled");
+        const names = (g.assigned || []).map(n => encodeURIComponent(n)).join(",");
+        return `${gTitle}:${names}`;
+      });
+      return `T=${t}&G=${gList.join("|")}`;
+    }
+
+    function getSummaryUrl() {
+      if (!latestData) return window.location.href;
+      const payload = packSummaryPayload(latestData);
+      let href = window.location.href.split('#')[0];
+      let basePath = href.substring(0, href.lastIndexOf('/') + 1);
+      return `${basePath}summary.htm#${payload}`;
+    }
+
+    function updatePermanentQr() {
+      const qrCard = document.getElementById("permanent-qr-card");
+      const qrContainer = document.getElementById("permanent-qr");
+      if (!qrCard || !qrContainer || !latestData) return;
+      
+      if (latestData.showQr === false) {
+        qrCard.style.display = "none";
+        return;
+      }
+      qrCard.style.display = "block";
+      
+      const payload = packSummaryPayload(latestData);
+      if (payload === lastQrPayload) return;
+      lastQrPayload = payload;
+      
+      const shareUrl = getSummaryUrl();
+      qrContainer.innerHTML = "";
+      if (typeof QRCode !== "undefined") {
+        new QRCode(qrContainer, {
+          text: shareUrl,
+          width: 68,
+          height: 68,
+          colorDark: "#181614",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.L
+        });
+      }
+    }
+
+    function unpackData(packed) {
+      try {
+        const decoded = decodeURIComponent(atob(packed));
+        const json = JSON.parse(decoded);
+        if (json && json.g && Array.isArray(json.g)) {
+          return {
+            title: json.t || "Staff Assignment",
+            banner: json.b || "",
+            groups: json.g.map((item, idx) => ({
+              id: Date.now() + idx,
+              title: item[0] || `Group ${idx + 1}`,
+              assigned: Array.isArray(item[1]) ? item[1] : [],
+              description: item[2] || "",
+              color: item[3] || "#ffffff"
+            }))
+          };
+        }
+        if (json && Array.isArray(json.groups)) {
+          return json;
+        }
+      } catch(err) {
+        console.error("Failed to unpack data:", err);
+      }
+      return null;
+    }
+
+    // Check if URL hash has #data= payload
+    if (window.location.hash.startsWith("#data=")) {
+      const rawHash = window.location.hash.substring(6);
+      const parsed = unpackData(rawHash);
+      if (parsed && Array.isArray(parsed.groups)) {
+        localStorage.setItem("assignerData", JSON.stringify(parsed));
+      }
+    }
+
+    function updateClock() {
+      const clockEl = document.getElementById("live-clock");
+      if (!clockEl) return;
+      const now = new Date();
+      clockEl.textContent = now.toLocaleTimeString([], { hour12: false });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
 
     function render() {
       const saved = localStorage.getItem("assignerData");
       if (!saved) return;
 
       const data = JSON.parse(saved);
+      latestData = data;
+      updatePermanentQr();
       const container = document.getElementById("cards-container");
       const banner = document.getElementById("banner");
       const mainTitle = document.getElementById("main-title");

@@ -6,12 +6,181 @@ let assignerData = { groups: [], banner: "", title: "Staff Assignment" };
 let PLATES = [];
 let N = 1;
 let nodes = [];
+let lastQrPayload = null;
 const SECONDS_PER_CARD = 2.2; // 2x faster speed
 const SNAP_MS = 450;
 const MAX_ROT = 48; // Less extreme angle for better readability in 3D perspective
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 let latestRawData = null;
+
+/* --- Permanent Top-Right QR Code --- */
+function packSummaryPayload(d) {
+    const t = encodeURIComponent(d.title || "Staff Assignment");
+    const gList = (d.groups || []).map(g => {
+        const gTitle = encodeURIComponent(g.title || "Untitled");
+        const names = (g.assigned || []).map(n => encodeURIComponent(n)).join(",");
+        return `${gTitle}:${names}`;
+    });
+    return `T=${t}&G=${gList.join("|")}`;
+}
+
+function getSummaryUrl() {
+    const payload = packSummaryPayload(assignerData);
+    let href = window.location.href.split('#')[0];
+    let basePath = href.substring(0, href.lastIndexOf('/') + 1);
+    return `${basePath}summary.htm#${payload}`;
+}
+
+/* --- Deep Synthesized Chime (Web Audio API) --- */
+let audioCtx = null;
+let isAudioMuted = false;
+
+function getAudioContext() {
+    if (!audioCtx) {
+        const AudioClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioClass) audioCtx = new AudioClass();
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    return audioCtx;
+}
+
+function playDeepChime() {
+    if (isAudioMuted || assignerData.soundEnabled === false) return;
+    try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        
+        const now = ctx.currentTime;
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const subOsc = ctx.createOscillator();
+        
+        const gain1 = ctx.createGain();
+        const gain2 = ctx.createGain();
+        const masterGain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+        
+        // Deep fundamental warm bell tone (C3 / 130.81 Hz)
+        osc1.type = "sine";
+        osc1.frequency.setValueAtTime(130.81, now);
+        osc1.frequency.exponentialRampToValueAtTime(128.0, now + 1.2);
+        
+        // Soft 5th harmonic for acoustic chime texture (G3 / 196 Hz)
+        osc2.type = "triangle";
+        osc2.frequency.setValueAtTime(196.00, now);
+        osc2.frequency.exponentialRampToValueAtTime(194.0, now + 0.8);
+        
+        // Sub-bass resonance (C2 / 65.41 Hz)
+        subOsc.type = "sine";
+        subOsc.frequency.setValueAtTime(65.41, now);
+        subOsc.frequency.exponentialRampToValueAtTime(64.0, now + 1.0);
+        
+        // Low-pass warmth filter
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(550, now);
+        filter.frequency.exponentialRampToValueAtTime(150, now + 1.2);
+        filter.Q.setValueAtTime(2.0, now);
+        
+        // Envelopes
+        gain1.gain.setValueAtTime(0.0001, now);
+        gain1.gain.linearRampToValueAtTime(0.35, now + 0.035);
+        gain1.gain.exponentialRampToValueAtTime(0.0001, now + 1.35);
+        
+        gain2.gain.setValueAtTime(0.0001, now);
+        gain2.gain.linearRampToValueAtTime(0.16, now + 0.02);
+        gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.9);
+        
+        masterGain.gain.setValueAtTime(0.75, now);
+        
+        osc1.connect(gain1);
+        subOsc.connect(gain1);
+        osc2.connect(gain2);
+        
+        gain1.connect(filter);
+        gain2.connect(filter);
+        filter.connect(masterGain);
+        masterGain.connect(ctx.destination);
+        
+        osc1.start(now);
+        subOsc.start(now);
+        osc2.start(now);
+        
+        osc1.stop(now + 1.4);
+        subOsc.stop(now + 1.4);
+        osc2.stop(now + 1.4);
+    } catch(e) {
+        console.warn("Audio chime error:", e);
+    }
+}
+
+function toggleAudioMute() {
+    if (assignerData.soundEnabled === false) {
+        assignerData.soundEnabled = true;
+        isAudioMuted = false;
+    } else {
+        isAudioMuted = !isAudioMuted;
+        assignerData.soundEnabled = !isAudioMuted;
+    }
+    try {
+        localStorage.setItem("assignerData", JSON.stringify(assignerData));
+        if (window.opener) window.opener.postMessage('assignerSettingsUpdate', '*');
+        if (window.parent && window.parent !== window) window.parent.postMessage('assignerSettingsUpdate', '*');
+    } catch(e){}
+    updateAudioButtonUi();
+    if (!isAudioMuted && assignerData.soundEnabled !== false) {
+        playDeepChime();
+    }
+}
+
+function updateAudioButtonUi() {
+    const onIcon = document.querySelector(".audio-on-icon");
+    const offIcon = document.querySelector(".audio-off-icon");
+    const btn = document.getElementById("audio-toggle");
+    if (!btn || !onIcon || !offIcon) return;
+    
+    const isMuted = isAudioMuted || assignerData.soundEnabled === false;
+    if (isMuted) {
+        onIcon.style.display = "none";
+        offIcon.style.display = "block";
+        btn.setAttribute("title", "Sound Muted (Click to Unmute)");
+    } else {
+        onIcon.style.display = "block";
+        offIcon.style.display = "none";
+        btn.setAttribute("title", "Sound Enabled (Click to Mute)");
+    }
+}
+
+function updatePermanentQr() {
+    const qrCard = document.getElementById("permanent-qr-card");
+    const qrContainer = document.getElementById("permanent-qr");
+    if (!qrCard || !qrContainer) return;
+    
+    if (assignerData.showQr === false) {
+        qrCard.style.display = "none";
+        return;
+    }
+    qrCard.style.display = "block";
+    
+    const payload = packSummaryPayload(assignerData);
+    if (payload === lastQrPayload) return;
+    lastQrPayload = payload;
+    
+    const shareUrl = getSummaryUrl();
+    qrContainer.innerHTML = "";
+    if (typeof QRCode !== "undefined") {
+        new QRCode(qrContainer, {
+            text: shareUrl,
+            width: 68,
+            height: 68,
+            colorDark: "#181614",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.L
+        });
+    }
+}
 
 function renderPlateInnerHtml(card) {
     let assignedHtml = (card.assigned || []).map(name => `<li class="plate-assigned-li">${name}</li>`).join('');
@@ -28,7 +197,42 @@ function renderPlateInnerHtml(card) {
     </article>`;
 }
 
+function unpackData(packed) {
+    try {
+        const decoded = decodeURIComponent(atob(packed));
+        const json = JSON.parse(decoded);
+        if (json && json.g && Array.isArray(json.g)) {
+            return {
+                title: json.t || "Staff Assignment",
+                banner: json.b || "",
+                groups: json.g.map((item, idx) => ({
+                    id: Date.now() + idx,
+                    title: item[0] || `Group ${idx + 1}`,
+                    assigned: Array.isArray(item[1]) ? item[1] : [],
+                    description: item[2] || "",
+                    color: item[3] || "#ffffff"
+                }))
+            };
+        }
+        if (json && Array.isArray(json.groups)) {
+            return json;
+        }
+    } catch(err) {
+        console.error("Failed to unpack data:", err);
+    }
+    return null;
+}
+
 function loadInitialData() {
+    // Check if URL hash has #data= payload
+    if (window.location.hash.startsWith("#data=")) {
+        const rawHash = window.location.hash.substring(6);
+        const parsed = unpackData(rawHash);
+        if (parsed && Array.isArray(parsed.groups)) {
+            localStorage.setItem("assignerData", JSON.stringify(parsed));
+        }
+    }
+
     const saved = localStorage.getItem("assignerData");
     if (saved) {
         latestRawData = saved;
@@ -36,8 +240,6 @@ function loadInitialData() {
             assignerData = JSON.parse(saved);
         } catch(e){}
     }
-    
-    updateHeaderAndBanner();
 
     PLATES = (assignerData.groups || []).map(g => ({
         id: g.id,
@@ -52,7 +254,18 @@ function loadInitialData() {
     }
     
     N = PLATES.length;
+    
+    updateHeaderAndBanner();
+    updateClock();
 }
+
+function updateClock() {
+    const clockEl = document.getElementById("live-clock");
+    if (!clockEl) return;
+    const now = new Date();
+    clockEl.textContent = now.toLocaleTimeString([], { hour12: false });
+}
+setInterval(updateClock, 1000);
 
 function updateHeaderAndBanner() {
     const mainTitle = document.getElementById("main-title");
@@ -63,6 +276,7 @@ function updateHeaderAndBanner() {
     
     updateStatsSubtitle();
     updateTotalCount();
+    updatePermanentQr();
 }
 
 function updateStatsSubtitle() {
@@ -236,9 +450,13 @@ function draw() {
         el.setAttribute("aria-selected", i === focus ? "true" : "false");
     }
     if (focus !== lastFocus) {
+        const isInitial = lastFocus === -1;
         lastFocus = focus;
         const idxEl = document.getElementById("idx");
         if (idxEl) idxEl.textContent = String(focus + 1).padStart(2, "0");
+        if (!isInitial) {
+            playDeepChime();
+        }
     }
 }
 
@@ -387,6 +605,7 @@ if (toggleBtn) toggleBtn.onclick = () => { playing = !playing; syncPlay(); };
 if (overlay) overlay.addEventListener("click", (e) => { if (e.target === overlay) closeDialog(); });
 if (document.getElementById("dlg-close")) document.getElementById("dlg-close").onclick = closeDialog;
 
+updateAudioButtonUi();
 syncPlay();
 draw();
 requestAnimationFrame(tick);
