@@ -435,6 +435,10 @@
       }
     }
 
+    window.toggleFullscreen = toggleFullscreen;
+    const fsBtn = document.getElementById("fullscreen-btn");
+    if (fsBtn) fsBtn.onclick = toggleFullscreen;
+
     window.addEventListener("keydown", (e) => {
       if (e.key === "f" || e.key === "F") {
         e.preventDefault();

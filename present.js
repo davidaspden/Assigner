@@ -618,6 +618,9 @@ document.addEventListener("dblclick", (e) => {
     toggleFullscreen();
 });
 
+window.toggleFullscreen = toggleFullscreen;
+
+if (document.getElementById("fullscreen-btn")) document.getElementById("fullscreen-btn").onclick = toggleFullscreen;
 if (document.getElementById("prev")) document.getElementById("prev").onclick = () => step(-1);
 if (document.getElementById("next")) document.getElementById("next").onclick = () => step(1);
 if (toggleBtn) toggleBtn.onclick = () => { playing = !playing; syncPlay(); };
