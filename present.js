@@ -182,18 +182,62 @@ function updatePermanentQr() {
     }
 }
 
+function getContrastTheme(colorStr) {
+    if (!colorStr) return 'is-light-theme';
+    let r = 255, g = 255, b = 255;
+    if (colorStr.startsWith('#')) {
+        let hex = colorStr.slice(1);
+        if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+        if (hex.length === 6) {
+            r = parseInt(hex.substring(0, 2), 16);
+            g = parseInt(hex.substring(2, 4), 16);
+            b = parseInt(hex.substring(4, 6), 16);
+        }
+    } else if (colorStr.startsWith('hsl')) {
+        const match = colorStr.match(/hsl\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*\)/);
+        if (match) {
+            const h = parseFloat(match[1]);
+            const s = parseFloat(match[2]) / 100;
+            const l = parseFloat(match[3]) / 100;
+            const c = (1 - Math.abs(2 * l - 1)) * s;
+            const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+            const m = l - c / 2;
+            let rP = 0, gP = 0, bP = 0;
+            if (h < 60) { rP = c; gP = x; }
+            else if (h < 120) { rP = x; gP = c; }
+            else if (h < 180) { gP = c; bP = x; }
+            else if (h < 240) { gP = x; bP = c; }
+            else if (h < 300) { rP = x; bP = c; }
+            else { rP = c; bP = x; }
+            r = Math.round((rP + m) * 255);
+            g = Math.round((gP + m) * 255);
+            b = Math.round((bP + m) * 255);
+        }
+    } else if (colorStr.startsWith('rgb')) {
+        const match = colorStr.match(/rgb\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*\)/);
+        if (match) {
+            r = parseFloat(match[1]);
+            g = parseFloat(match[2]);
+            b = parseFloat(match[3]);
+        }
+    }
+    const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+    return yiq < 145 ? 'is-dark-theme' : 'is-light-theme';
+}
+
 function renderPlateInnerHtml(card) {
+    const themeClass = getContrastTheme(card.color);
     let assignedHtml = (card.assigned || []).map(name => `<li class="plate-assigned-li">${name}</li>`).join('');
-    let copyHtml = card.copy ? `<div style="font-size: 1em; font-style: italic; margin-bottom: 15px; color: #333; text-align: center;">${card.copy}</div>` : '';
+    let copyHtml = card.copy ? `<div class="plate-desc-bottom">${card.copy}</div>` : '';
     
-    return `<article class="plate-face" style="background-color: ${card.color || '#fff'}; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; outline: 1px solid rgba(0,0,0,0.2); outline-offset: -1px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5), 0 18px 40px rgba(0, 0, 0, 0.45);">
-        <div style="font-size: 1.5em; font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.2); padding-bottom: 5px; color: black; text-align: center;">${card.title}</div>
-        ${copyHtml}
+    return `<article class="plate-face ${themeClass}" style="background-color: ${card.color || '#fff'}; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; outline: 1px solid rgba(0,0,0,0.2); outline-offset: -1px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4), 0 18px 40px rgba(0, 0, 0, 0.45);">
+        <div class="plate-title" style="font-size: 1.5em; font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.18); padding-bottom: 5px; text-align: center;">${card.title}</div>
         <div style="flex: 1; overflow-y: auto;">
             <ul class="plate-assigned-ul">
                 ${assignedHtml}
             </ul>
         </div>
+        ${copyHtml}
     </article>`;
 }
 

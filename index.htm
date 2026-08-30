@@ -255,6 +255,53 @@
     padding: 8px;
     font-family: inherit;
   }
+  .group-desc-footer {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+  }
+  .group-description {
+    background: rgba(255, 255, 255, 0.7);
+    color: #111;
+  }
+
+  /* --- Dynamic Contrast for Dark Cards in Editor --- */
+  .group-box.is-dark-theme {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+  .group-box.is-dark-theme .group-title {
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+  .group-box.is-dark-theme textarea {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+  .group-box.is-dark-theme .textarea-count-watermark {
+    color: rgba(255, 255, 255, 0.16);
+  }
+  .group-box.is-dark-theme .card-color-bar {
+    background: rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  .group-box.is-dark-theme .card-close-btn {
+    background: rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #f3eee6;
+  }
+  .group-box.is-dark-theme .group-desc-footer {
+    border-top-color: rgba(255, 255, 255, 0.22);
+  }
+  .group-box.is-dark-theme .group-description {
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.4) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+  }
+  .group-box.is-dark-theme .group-description::placeholder {
+    color: rgba(255, 255, 255, 0.55);
+  }
   .banner-edit {
     padding: 10px 16px;
     background: #e5e5e5;
@@ -645,6 +692,49 @@
     }
     return generated;
   }
+
+  function getContrastTheme(colorStr) {
+    if (!colorStr) return 'is-light-theme';
+    let r = 255, g = 255, b = 255;
+    if (colorStr.startsWith('#')) {
+      let hex = colorStr.slice(1);
+      if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+      if (hex.length === 6) {
+        r = parseInt(hex.substring(0, 2), 16);
+        g = parseInt(hex.substring(2, 4), 16);
+        b = parseInt(hex.substring(4, 6), 16);
+      }
+    } else if (colorStr.startsWith('hsl')) {
+      const match = colorStr.match(/hsl\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*\)/);
+      if (match) {
+        const h = parseFloat(match[1]);
+        const s = parseFloat(match[2]) / 100;
+        const l = parseFloat(match[3]) / 100;
+        const c = (1 - Math.abs(2 * l - 1)) * s;
+        const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+        const m = l - c / 2;
+        let rP = 0, gP = 0, bP = 0;
+        if (h < 60) { rP = c; gP = x; }
+        else if (h < 120) { rP = x; gP = c; }
+        else if (h < 180) { gP = c; bP = x; }
+        else if (h < 240) { gP = x; bP = c; }
+        else if (h < 300) { rP = x; bP = c; }
+        else { rP = c; bP = x; }
+        r = Math.round((rP + m) * 255);
+        g = Math.round((gP + m) * 255);
+        b = Math.round((bP + m) * 255);
+      }
+    } else if (colorStr.startsWith('rgb')) {
+      const match = colorStr.match(/rgb\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*\)/);
+      if (match) {
+        r = parseFloat(match[1]);
+        g = parseFloat(match[2]);
+        b = parseFloat(match[3]);
+      }
+    }
+    const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+    return yiq < 145 ? 'is-dark-theme' : 'is-light-theme';
+  }
   
   let colors = generateColors(8); // Defaulting to 8 colors
   let data = {
@@ -893,8 +983,9 @@
     
     groupsContainer.innerHTML = "";
     (data.groups || []).forEach(g => {
+      const themeClass = getContrastTheme(g.color);
       const gBox = document.createElement("div");
-      gBox.className = "group-box";
+      gBox.className = `group-box ${themeClass}`;
       gBox.style.backgroundColor = g.color;
       gBox.dataset.id = g.id;
 
@@ -914,10 +1005,12 @@
             </svg>
           </button>
         </div>
-        <input type="text" class="group-description" id="group-desc-${g.id}" value="${g.description || ''}" placeholder="Description/Instruction" style="width: 100%; padding: 4px; box-sizing: border-box; margin-bottom: 5px; border: 1px solid rgba(0,0,0,0.2); border-radius: 3px;" onchange="updateDescription(${g.id}, this.value)">
         <div class="textarea-wrapper">
           <span class="textarea-count-watermark" id="watermark-count-${g.id}">${(g.assigned || []).length}</span>
           <textarea id="group-text-${g.id}">${(g.assigned || []).join(", ")}</textarea>
+        </div>
+        <div class="group-desc-footer">
+          <input type="text" class="group-description" id="group-desc-${g.id}" value="${g.description || ''}" placeholder="Description / Instructions..." style="width: 100%; padding: 4px 6px; box-sizing: border-box; border: 1px solid rgba(0,0,0,0.18); border-radius: 4px; font-size: 0.84em; font-family: inherit;" onchange="updateDescription(${g.id}, this.value)">
         </div>
       `;
       groupsContainer.appendChild(gBox);

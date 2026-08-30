@@ -216,12 +216,17 @@
         ? `<div class="name-list">${g.assigned.map(n => `<div class="name-tag">${n}</div>`).join('')}</div>`
         : `<div class="empty-msg">No staff assigned</div>`;
 
+      const descHtml = g.description 
+        ? `<div style="border-top: 1px solid var(--border); margin-top: 10px; padding-top: 8px; font-style: italic; font-size: 0.88rem; color: var(--muted); line-height: 1.35;">${g.description}</div>` 
+        : '';
+
       card.innerHTML = `
         <div class="group-header">
           <span class="group-title">${g.title}</span>
           <span class="count-pill">${(g.assigned || []).length}</span>
         </div>
         ${namesHtml}
+        ${descHtml}
       `;
       container.appendChild(card);
     });

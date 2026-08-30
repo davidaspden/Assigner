@@ -92,9 +92,48 @@
     .card-desc {
       font-size: 0.9em;
       font-style: italic;
-      color: #333;
-      margin-bottom: 10px;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(0, 0, 0, 0.15);
       text-align: center;
+      line-height: 1.35;
+    }
+
+    /* Dark theme contrast for grid presentation cards */
+    .card.is-dark-theme {
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    }
+    .card.is-dark-theme .card-title {
+      color: #ffffff;
+      border-bottom-color: rgba(255, 255, 255, 0.22);
+    }
+    .card.is-dark-theme .card-assigned li {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.14);
+      border-bottom-color: rgba(255, 255, 255, 0.15);
+    }
+    .card.is-dark-theme .card-desc {
+      color: rgba(255, 255, 255, 0.8);
+      border-top-color: rgba(255, 255, 255, 0.22);
+    }
+
+    /* Light theme contrast */
+    .card.is-light-theme {
+      color: #111111;
+    }
+    .card.is-light-theme .card-title {
+      color: #111111;
+      border-bottom-color: rgba(0, 0, 0, 0.15);
+    }
+    .card.is-light-theme .card-assigned li {
+      color: #111111;
+      background: rgba(255, 255, 255, 0.35);
+      border-bottom-color: rgba(0, 0, 0, 0.08);
+    }
+    .card.is-light-theme .card-desc {
+      color: rgba(0, 0, 0, 0.65);
+      border-top-color: rgba(0, 0, 0, 0.15);
     }
 
     .card-assigned {
@@ -337,6 +376,49 @@
     setInterval(updateClock, 1000);
     updateClock();
 
+    function getContrastTheme(colorStr) {
+      if (!colorStr) return 'is-light-theme';
+      let r = 255, g = 255, b = 255;
+      if (colorStr.startsWith('#')) {
+        let hex = colorStr.slice(1);
+        if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+        if (hex.length === 6) {
+          r = parseInt(hex.substring(0, 2), 16);
+          g = parseInt(hex.substring(2, 4), 16);
+          b = parseInt(hex.substring(4, 6), 16);
+        }
+      } else if (colorStr.startsWith('hsl')) {
+        const match = colorStr.match(/hsl\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*\)/);
+        if (match) {
+          const h = parseFloat(match[1]);
+          const s = parseFloat(match[2]) / 100;
+          const l = parseFloat(match[3]) / 100;
+          const c = (1 - Math.abs(2 * l - 1)) * s;
+          const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+          const m = l - c / 2;
+          let rP = 0, gP = 0, bP = 0;
+          if (h < 60) { rP = c; gP = x; }
+          else if (h < 120) { rP = x; gP = c; }
+          else if (h < 180) { gP = c; bP = x; }
+          else if (h < 240) { gP = x; bP = c; }
+          else if (h < 300) { rP = x; bP = c; }
+          else { rP = c; bP = x; }
+          r = Math.round((rP + m) * 255);
+          g = Math.round((gP + m) * 255);
+          b = Math.round((bP + m) * 255);
+        }
+      } else if (colorStr.startsWith('rgb')) {
+        const match = colorStr.match(/rgb\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*\)/);
+        if (match) {
+          r = parseFloat(match[1]);
+          g = parseFloat(match[2]);
+          b = parseFloat(match[3]);
+        }
+      }
+      const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+      return yiq < 145 ? 'is-dark-theme' : 'is-light-theme';
+    }
+
     function render() {
       const saved = localStorage.getItem("assignerData");
       if (!saved) return;
@@ -369,7 +451,6 @@
 
       if (!data.groups || data.groups.length === 0) {
         container.innerHTML = "<h2>No groups available. Please add some in the editor.</h2>";
-        allListItems = [];
         return;
       }
 
@@ -398,6 +479,8 @@
           container.appendChild(card);
         }
 
+        const themeClass = getContrastTheme(g.color);
+        card.className = `card ${themeClass}`;
         card.style.backgroundColor = g.color;
 
         const titleEl = card.querySelector(".card-title");
@@ -409,7 +492,7 @@
           if (!descEl) {
             descEl = document.createElement("div");
             descEl.className = "card-desc";
-            titleEl.after(descEl);
+            card.appendChild(descEl);
           }
           if (descEl.innerText !== g.description) descEl.innerText = g.description;
         } else if (descEl) {
