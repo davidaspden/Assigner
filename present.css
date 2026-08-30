@@ -437,6 +437,78 @@ button:not(:disabled):active {
     margin: 0 auto !important;
 }
 
+/* --- Top-Right Tools (QR Badge & Live Clock) --- */
+.top-corner-tools {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.5rem;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    z-index: 30;
+}
+
+.permanent-qr-card {
+    background: rgba(20, 18, 16, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 5px 6px;
+    text-align: center;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+    display: block;
+}
+
+#permanent-qr {
+    background: #ffffff;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#permanent-qr canvas {
+    display: none !important;
+}
+
+#permanent-qr img {
+    display: block !important;
+    width: 68px !important;
+    height: 68px !important;
+    margin: 0 auto !important;
+}
+
+.qr-label {
+    display: block;
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: var(--muted, #9a9284);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 3px;
+    line-height: 1.1;
+    white-space: nowrap;
+}
+
+.live-clock {
+    font-family: Fraunces, "Times New Roman", serif;
+    font-variant-numeric: tabular-nums;
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--muted, #9a9284);
+    letter-spacing: 0.05em;
+    background: rgba(20, 18, 16, 0.75);
+    padding: 4px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(4px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 @media (min-width: 640px) {
     header,
     footer {

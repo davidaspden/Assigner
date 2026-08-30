@@ -168,6 +168,29 @@
       z-index: 3;
       box-sizing: border-box;
     }
+    #permanent-qr {
+      background: #ffffff;
+      padding: 3px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 68px;
+      height: 68px;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    #permanent-qr canvas {
+      display: none !important;
+    }
+    #permanent-qr img {
+      display: block !important;
+      width: 62px !important;
+      height: 62px !important;
+      max-width: 100% !important;
+      max-height: 100% !important;
+      margin: 0 auto !important;
+    }
   </style>
 </head>
 
@@ -231,7 +254,7 @@
       qrCard.style.display = "block";
       
       const payload = packSummaryPayload(latestData);
-      if (payload === lastQrPayload) return;
+      if (payload === lastQrPayload && qrContainer.innerHTML !== "") return;
       lastQrPayload = payload;
       
       const shareUrl = getSummaryUrl();
@@ -239,8 +262,8 @@
       if (typeof QRCode !== "undefined") {
         new QRCode(qrContainer, {
           text: shareUrl,
-          width: 68,
-          height: 68,
+          width: 62,
+          height: 62,
           colorDark: "#181614",
           colorLight: "#ffffff",
           correctLevel: QRCode.CorrectLevel.L

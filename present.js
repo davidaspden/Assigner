@@ -165,7 +165,7 @@ function updatePermanentQr() {
     qrCard.style.display = "block";
     
     const payload = packSummaryPayload(assignerData);
-    if (payload === lastQrPayload) return;
+    if (payload === lastQrPayload && qrContainer.innerHTML !== "") return;
     lastQrPayload = payload;
     
     const shareUrl = getSummaryUrl();
@@ -265,7 +265,8 @@ function updateClock() {
     const now = new Date();
     clockEl.textContent = now.toLocaleTimeString([], { hour12: false });
 }
-setInterval(updateClock, 1000);
+updateClock();
+setInterval(updateClock, 500);
 
 function updateHeaderAndBanner() {
     const mainTitle = document.getElementById("main-title");
