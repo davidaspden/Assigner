@@ -247,10 +247,34 @@
       line-height: 1.1;
       white-space: nowrap;
     }
+    .bg-watermark-logo {
+      position: fixed;
+      bottom: 4rem;
+      right: 2rem;
+      width: min(320px, 32vw);
+      height: min(320px, 32vw);
+      opacity: 0.045;
+      pointer-events: none;
+      z-index: 1;
+      user-select: none;
+    }
   </style>
 </head>
 
 <body>
+
+  <!-- Ambient Background Watermark Logo -->
+  <div class="bg-watermark-logo" aria-hidden="true">
+    <svg viewBox="4 8 40 30" width="100%" height="100%" preserveAspectRatio="xMaxYMax meet">
+      <rect x="7" y="13" width="16" height="23" rx="3.5" transform="rotate(-14 15 24.5)" fill="#38bdf8"/>
+      <rect x="25" y="13" width="16" height="23" rx="3.5" transform="rotate(14 33 24.5)" fill="#c084fc"/>
+      <rect x="14" y="9" width="20" height="27" rx="4.5" fill="#fbbf24"/>
+      <rect x="18.5" y="14.5" width="11" height="2.2" rx="1.1" fill="#ffffff" opacity="0.95"/>
+      <rect x="18.5" y="19" width="8" height="2.2" rx="1.1" fill="#ffffff" opacity="0.75"/>
+      <circle cx="19.5" cy="26" r="1.6" fill="#ffffff"/>
+      <circle cx="25" cy="26" r="1.6" fill="#ffffff"/>
+    </svg>
+  </div>
 
   <div style="position: relative; text-align: center;">
     <h1 id="main-title"

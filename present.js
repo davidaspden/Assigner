@@ -227,13 +227,21 @@ function getContrastTheme(colorStr) {
 
 function renderPlateInnerHtml(card) {
     const themeClass = getContrastTheme(card.color);
+    const count = (card.assigned || []).length;
+    let colClass = "";
+    if (count > 16) {
+        colClass = "cols-3";
+    } else if (count > 8) {
+        colClass = "cols-2";
+    }
+    
     let assignedHtml = (card.assigned || []).map(name => `<li class="plate-assigned-li">${name}</li>`).join('');
     let copyHtml = card.copy ? `<div class="plate-desc-bottom">${card.copy}</div>` : '';
     
-    return `<article class="plate-face ${themeClass}" style="background-color: ${card.color || '#fff'}; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; outline: 1px solid rgba(0,0,0,0.2); outline-offset: -1px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4), 0 18px 40px rgba(0, 0, 0, 0.45);">
-        <div class="plate-title" style="font-size: 1.5em; font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.18); padding-bottom: 5px; text-align: center;">${card.title}</div>
-        <div style="flex: 1; overflow-y: auto;">
-            <ul class="plate-assigned-ul">
+    return `<article class="plate-face ${themeClass}" style="background-color: ${card.color || '#fff'}; display: flex; flex-direction: column; padding: 18px 20px; box-sizing: border-box; outline: 1px solid rgba(0,0,0,0.2); outline-offset: -1px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4), 0 18px 40px rgba(0, 0, 0, 0.45);">
+        <div class="plate-title" style="font-size: 1.45em; font-weight: bold; margin-bottom: 8px; border-bottom: 2px solid rgba(0,0,0,0.18); padding-bottom: 4px; text-align: center;">${card.title}</div>
+        <div class="plate-assigned-scroll" style="flex: 1; overflow-y: auto; min-height: 0;">
+            <ul class="plate-assigned-ul ${colClass}">
                 ${assignedHtml}
             </ul>
         </div>
@@ -627,6 +635,17 @@ if (stage) {
 
     stage.addEventListener("wheel", (e) => {
         if (open) return;
+        
+        // If hovering over a scrollable plate list, allow natural vertical scrolling
+        const scrollEl = e.target.closest(".plate-assigned-scroll");
+        if (scrollEl && (scrollEl.scrollHeight > scrollEl.clientHeight)) {
+            const atTop = scrollEl.scrollTop <= 0 && e.deltaY < 0;
+            const atBottom = (scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 1) && e.deltaY > 0;
+            if (!atTop && !atBottom) {
+                return; // let native vertical scroll occur
+            }
+        }
+
         e.preventDefault();
         playing = false;
         syncPlay();

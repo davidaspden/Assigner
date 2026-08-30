@@ -90,6 +90,17 @@
     overflow-y: auto;
     align-content: flex-start;
   }
+  .right-pane-watermark {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 900px;
+    max-width: 80%;
+    opacity: 0.145;
+    pointer-events: none;
+    z-index: 0;
+    user-select: none;
+  }
   textarea {
     width: 100%;
     resize: none;
@@ -600,8 +611,21 @@
       </div>
     </div>
   </div>
-  <div class="right-pane" id="groups-container">
-    <!-- Groups go here -->
+  <div class="right-pane-wrapper" style="flex: 3; position: relative; display: flex; overflow: hidden;">
+    <div class="right-pane" id="groups-container" style="flex: 1; z-index: 1;">
+      <!-- Groups go here -->
+    </div>
+    <div class="right-pane-watermark" aria-hidden="true">
+      <svg viewBox="4 8 40 30" width="100%" height="100%" preserveAspectRatio="xMaxYMax meet">
+        <rect x="7" y="13" width="16" height="23" rx="3.5" transform="rotate(-14 15 24.5)" fill="#38bdf8"/>
+        <rect x="25" y="13" width="16" height="23" rx="3.5" transform="rotate(14 33 24.5)" fill="#c084fc"/>
+        <rect x="14" y="9" width="20" height="27" rx="4.5" fill="#fbbf24"/>
+        <rect x="18.5" y="14.5" width="11" height="2.2" rx="1.1" fill="#181614" opacity="0.4"/>
+        <rect x="18.5" y="19" width="8" height="2.2" rx="1.1" fill="#181614" opacity="0.3"/>
+        <circle cx="19.5" cy="26" r="1.6" fill="#181614" opacity="0.4"/>
+        <circle cx="25" cy="26" r="1.6" fill="#181614" opacity="0.4"/>
+      </svg>
+    </div>
   </div>
 </div>
 
