@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Assigner - Presentation 2</title>
+  <meta name="theme-color" content="#0b0a08" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%23181614'/%3E%3Crect x='8' y='14' width='16' height='22' rx='3.5' transform='rotate(-12 16 25)' fill='%2338bdf8' opacity='0.85'/%3E%3Crect x='24' y='14' width='16' height='22' rx='3.5' transform='rotate(12 32 25)' fill='%23a855f7' opacity='0.85'/%3E%3Crect x='15' y='11' width='18' height='24' rx='4' fill='%23f59e0b' stroke='%23181614' stroke-width='1.5'/%3E%3Crect x='19' y='16' width='10' height='2' rx='1' fill='%23ffffff' opacity='0.9'/%3E%3Crect x='19' y='21' width='7' height='2' rx='1' fill='%23ffffff' opacity='0.7'/%3E%3Ccircle cx='20' cy='27' r='1.5' fill='%23ffffff'/%3E%3Ccircle cx='25' cy='27' r='1.5' fill='%23ffffff'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Outfit:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="present.css">
+</head>
+<body>
+  <div class="app">
+    <div class="title-container">
+      <h1 id="main-title" class="main-title">Staff Assignment</h1>
+      <p id="stats-subtitle" class="stats-subtitle"></p>
+    </div>
+
+    <div id="stage" class="stage" role="listbox" aria-label="Plate rail"></div>
+
+    <footer class="banner-footer">
+      <div class="counter-box">
+        <span id="idx">01</span><span class="sep">/</span><span id="total-count">00</span>
+      </div>
+      <div class="banner-text" id="banner-text"></div>
+      <div class="controls">
+        <button class="icon-btn" id="prev" type="button" aria-label="Previous plate">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button class="icon-btn is-playing" id="toggle" type="button" aria-label="Pause">
+          <span class="play-swap">
+            <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+            <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+          </span>
+        </button>
+        <button class="icon-btn" id="next" type="button" aria-label="Next plate">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <div class="overlay" id="overlay" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title">
+      <div class="dialog-body">
+        <h2 id="dlg-title"></h2>
+        <p class="copy" id="dlg-copy"></p>
+        <div id="dlg-assigned"></div>
+      </div>
+      <button class="dialog-close" id="dlg-close" type="button" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <script src="present.js"></script>
+</body>
+</html>

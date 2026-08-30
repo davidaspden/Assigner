@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assigner - Edit</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%23181614'/%3E%3Crect x='8' y='14' width='16' height='22' rx='3.5' transform='rotate(-12 16 25)' fill='%2338bdf8' opacity='0.85'/%3E%3Crect x='24' y='14' width='16' height='22' rx='3.5' transform='rotate(12 32 25)' fill='%23a855f7' opacity='0.85'/%3E%3Crect x='15' y='11' width='18' height='24' rx='4' fill='%23f59e0b' stroke='%23181614' stroke-width='1.5'/%3E%3Crect x='19' y='16' width='10' height='2' rx='1' fill='%23ffffff' opacity='0.9'/%3E%3Crect x='19' y='21' width='7' height='2' rx='1' fill='%23ffffff' opacity='0.7'/%3E%3Ccircle cx='20' cy='27' r='1.5' fill='%23ffffff'/%3E%3Ccircle cx='25' cy='27' r='1.5' fill='%23ffffff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=Outfit:wght@400;500;600&display=swap" />
+<style>
+  body {
+    font-family: Outfit, ui-sans-serif, system-ui, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #f8f9fa;
+    color: #1e1e24;
+  }
+  .header {
+    padding: 12px 24px;
+    background: #181614;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #f3eee6;
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .header-titles {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .app-title {
+    margin: 0;
+    font-family: Fraunces, "Times New Roman", serif;
+    font-size: 1.85rem;
+    font-weight: 500;
+    font-style: italic;
+    color: #f3eee6;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+  .app-tagline {
+    font-size: 0.82rem;
+    color: #9a9284;
+    letter-spacing: 0.04em;
+  }
+  .header-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    color: #f3eee6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .header-btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+    transform: translateY(-1px);
+  }
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    padding: 10px;
+    gap: 10px;
+  }
+  .left-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .right-pane {
+    flex: 3;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    overflow-y: auto;
+    align-content: flex-start;
+  }
+  textarea {
+    width: 100%;
+    resize: none;
+    box-sizing: border-box;
+    font-family: inherit;
+    padding: 8px;
+  }
+  .left-pane textarea {
+    flex: 1;
+  }
+  .preview-container {
+    margin-top: 10px;
+    flex: 1;
+    position: relative;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+    cursor: pointer;
+    min-height: 200px;
+  }
+  .preview-iframe {
+    width: 400%;
+    height: 400%;
+    transform: scale(0.25);
+    transform-origin: top left;
+    border: none;
+    pointer-events: none;
+  }
+  .preview-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 128, 128, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .preview-container:hover .preview-overlay {
+    opacity: 1;
+  }
+  .group-box {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    width: calc(33.333% - 10px);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    position: relative;
+  }
+  .group-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+  }
+  .group-title {
+    flex: 1;
+    margin-right: 5px;
+  }
+  .color-picker {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+    width: 60px;
+  }
+  .color-swatch {
+    width: 12px;
+    height: 12px;
+    cursor: pointer;
+    border: 1px solid #000;
+  }
+  .textarea-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    min-height: 100px;
+  }
+  .textarea-count-watermark {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Outfit, sans-serif;
+    font-size: 4.5rem;
+    font-weight: 900;
+    color: rgba(0, 0, 0, 0.09);
+    user-select: none;
+    pointer-events: none;
+    z-index: 0;
+    line-height: 1;
+  }
+  .group-box textarea {
+    position: relative;
+    z-index: 1;
+    background: transparent;
+    flex: 1;
+    min-height: 100px;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    border-radius: 4px;
+    padding: 8px;
+    font-family: inherit;
+  }
+  .banner-edit {
+    padding: 10px 16px;
+    background: #e5e5e5;
+    border-top: 1px solid #ccc;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .banner-edit input {
+    flex: 1;
+    padding: 7px 10px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+  }
+  .live-card-stats {
+    padding: 6px 14px;
+    background: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.88em;
+    white-space: nowrap;
+    color: #181614;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .highlight {
+    background-color: yellow;
+    transition: background-color 1s;
+  }
+
+  .error-glow {
+    animation: errorGlow 1s infinite;
+    border: 2px solid red !important;
+    box-shadow: 0 0 10px red;
+  }
+  
+  @keyframes errorGlow {
+    0% { box-shadow: 0 0 5px red; }
+    50% { box-shadow: 0 0 15px red; }
+    100% { box-shadow: 0 0 5px red; }
+  }
+  
+  .error-bar {
+    padding: 10px;
+    background: #ffe6e6;
+    color: red;
+    font-weight: bold;
+    display: none;
+    text-align: center;
+  }
+  
+  /* Modal for duplicate */
+  #duplicate-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border: 2px solid black;
+    padding: 20px;
+    z-index: 1000;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+  }
+  #overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <!-- Sleek Multi-Card SVG Logo -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="38" height="38">
+      <defs>
+        <linearGradient id="hdrIconBg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#2a2824" />
+          <stop offset="100%" stop-color="#141210" />
+        </linearGradient>
+        <linearGradient id="hdrCard1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#38bdf8" />
+          <stop offset="100%" stop-color="#0284c7" />
+        </linearGradient>
+        <linearGradient id="hdrCard2" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#a855f7" />
+          <stop offset="100%" stop-color="#7c3aed" />
+        </linearGradient>
+        <linearGradient id="hdrCard3" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f59e0b" />
+          <stop offset="100%" stop-color="#d97706" />
+        </linearGradient>
+      </defs>
+      <rect width="48" height="48" rx="12" fill="url(#hdrIconBg)" />
+      <rect x="8" y="14" width="16" height="22" rx="3.5" transform="rotate(-12 16 25)" fill="url(#hdrCard1)" opacity="0.85" />
+      <rect x="24" y="14" width="16" height="22" rx="3.5" transform="rotate(12 32 25)" fill="url(#hdrCard2)" opacity="0.85" />
+      <rect x="15" y="11" width="18" height="24" rx="4" fill="url(#hdrCard3)" stroke="#141210" stroke-width="1.5" />
+      <rect x="19" y="16" width="10" height="2" rx="1" fill="#ffffff" opacity="0.9" />
+      <rect x="19" y="21" width="7" height="2" rx="1" fill="#ffffff" opacity="0.7" />
+      <circle cx="20" cy="27" r="1.5" fill="#ffffff" />
+      <circle cx="25" cy="27" r="1.5" fill="#ffffff" />
+    </svg>
+    <div class="header-titles">
+      <h1 class="app-title">Assigner</h1>
+      <span class="app-tagline">Quickly display group info</span>
+    </div>
+  </div>
+  <div style="display: flex; gap: 10px; align-items: center;">
+    <button onclick="saveData()" title="Save Manually" class="header-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+      </svg>
+    </button>
+    <a href="present.htm" target="_blank" title="Open Presenter" class="header-btn" style="text-decoration: none;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/>
+        <path d="M10 8l6 3.5-6 3.5z" />
+      </svg>
+    </a>
+  </div>
+</div>
+
+<div class="main">
+  <div class="left-pane">
+    <h3 style="margin-top: 0;">Presentation Title</h3>
+    <input type="text" id="presentation-title" placeholder="Enter presentation title..." style="width: 100%; padding: 8px; margin-bottom: 20px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+
+    <h3>Locations</h3>
+    <textarea id="locations-text" placeholder="Type locations separated by comma..."></textarea>
+    <label style="margin-top: 10px; font-size: 0.9em;">
+      <input type="checkbox" id="allow-delete-populated"> Allow deleting populated groups
+    </label>
+    
+    <h3 style="margin-top: 20px;">Live Preview</h3>
+    <div class="preview-container" onclick="openPresentation()">
+      <iframe src="present.htm" class="preview-iframe"></iframe>
+      <div class="preview-overlay">
+        <!-- Present icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="white">
+          <path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/>
+          <path d="M10 8l6 3.5-6 3.5z" />
+        </svg>
+      </div>
+    </div>
+    
+    <div id="view-setup" style="margin-top: 10px; margin-bottom: 10px; font-size: 0.9em; padding: 8px; background: rgba(0,0,0,0.05); border-radius: 4px;">
+      <strong style="display: block; margin-bottom: 5px;">Presentation View:</strong>
+      <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; margin-bottom: 5px;">
+        <input type="radio" name="presentation-view" value="present.htm" checked onchange="document.querySelector('.preview-iframe').src = this.value">
+        Grid View
+      </label>
+      <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+        <input type="radio" name="presentation-view" value="present2.htm" onchange="document.querySelector('.preview-iframe').src = this.value">
+        Accordion View (Sweep)
+      </label>
+    </div>
+    
+    <div id="monitor-setup" style="margin-top: 10px; font-size: 0.9em;">
+      <button id="detect-monitors-btn" onclick="detectMonitors()" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ccc; cursor: pointer;">Detect Monitors</button>
+      <div id="monitor-selection" style="display: none; padding: 8px; background: rgba(0,0,0,0.05); border-radius: 4px;">
+        <strong style="display: block; margin-bottom: 5px;">Launch on Monitor:</strong>
+        <div id="monitor-list" style="display: flex; flex-direction: column; gap: 5px;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="right-pane" id="groups-container">
+    <!-- Groups go here -->
+  </div>
+</div>
+
+<div id="error-output" class="error-bar"></div>
+
+<div class="banner-edit">
+  <label style="font-weight: 600;">Fixed Banner:</label>
+  <input type="text" id="banner-input" placeholder="Enter banner message here">
+  <div id="live-card-stats" class="live-card-stats">Total: 0 People across 0 Groups</div>
+</div>
+
+<div id="overlay"></div>
+<div id="duplicate-modal">
+  <p id="dup-message"></p>
+  <button id="btn-remove-other">Remove from other box</button>
+  <button id="btn-delete-current">Delete from current box</button>
+  <button onclick="closeModal()">Ignore</button>
+</div>
+
+<script>
+  function generateColors(numColors) {
+    const generated = [];
+    for (let i = 0; i < numColors; i++) {
+      // Generate evenly spaced hues for distinct pastel colors
+      generated.push(`hsl(${Math.floor(i * (360 / numColors))}, 100%, 85%)`);
+    }
+    return generated;
+  }
+  
+  let colors = generateColors(8); // Defaulting to 8 colors
+  let data = {
+    groups: [],
+    banner: "",
+    title: "Staff Assignment"
+  };
+
+  const titleEl = document.getElementById("presentation-title");
+  const locationsEl = document.getElementById("locations-text");
+  const bannerEl = document.getElementById("banner-input");
+  const groupsContainer = document.getElementById("groups-container");
+
+  function loadData() {
+    const saved = localStorage.getItem("assignerData");
+    if (saved) {
+      data = JSON.parse(saved);
+      if(data.unassigned) delete data.unassigned;
+      if(!data.title) data.title = "Staff Assignment";
+    } else {
+      data = { groups: [{ id: 1, title: "Group 1", color: colors[0], assigned: [] }], banner: "Please go to the following departments. We are the best. The best of the best. Show 'em how it is done.", title: "Staff Assignment" };
+    }
+    locationsEl.value = data.groups.map(g => g.title).join(", ");
+    titleEl.value = data.title;
+    render();
+  }
+
+  titleEl.addEventListener("input", () => {
+    data.title = titleEl.value;
+    saveData();
+  });
+
+  function updateLiveCardStats() {
+    const statsEl = document.getElementById("live-card-stats");
+    if (!statsEl) return;
+    const totalAssigned = (data.groups || []).reduce((acc, g) => acc + ((g.assigned && Array.isArray(g.assigned)) ? g.assigned.length : 0), 0);
+    const totalGroups = (data.groups || []).length;
+    const staffLabel = totalAssigned === 1 ? "Person" : "People";
+    const groupLabel = totalGroups === 1 ? "Group" : "Groups";
+    statsEl.innerText = `Total: ${totalAssigned} ${staffLabel} across ${totalGroups} ${groupLabel}`;
+  }
+
+  function render(updateLocationsInput = false) {
+    bannerEl.value = data.banner || "";
+    if (updateLocationsInput) {
+      locationsEl.value = (data.groups || []).map(g => g.title).join(", ");
+    }
+    
+    groupsContainer.innerHTML = "";
+    (data.groups || []).forEach(g => {
+      const gBox = document.createElement("div");
+      gBox.className = "group-box";
+      gBox.style.backgroundColor = g.color;
+      gBox.dataset.id = g.id;
+
+      let colorPickerHtml = colors.map(c => `<div class="color-swatch" style="background:${c};" onclick="changeColor(${g.id}, '${c}')"></div>`).join("");
+
+      gBox.innerHTML = `
+        <div class="group-header">
+          <input type="text" class="group-title" value="${g.title}" onchange="updateTitle(${g.id}, this.value)">
+          <div class="color-picker">${colorPickerHtml}</div>
+          <button onclick="removeGroup(${g.id})">X</button>
+        </div>
+        <input type="text" class="group-description" id="group-desc-${g.id}" value="${g.description || ''}" placeholder="Description/Instruction" style="width: 100%; padding: 4px; box-sizing: border-box; margin-bottom: 5px; border: 1px solid rgba(0,0,0,0.2); border-radius: 3px;" onchange="updateDescription(${g.id}, this.value)">
+        <div class="textarea-wrapper">
+          <span class="textarea-count-watermark" id="watermark-count-${g.id}">${(g.assigned || []).length}</span>
+          <textarea id="group-text-${g.id}">${(g.assigned || []).join(", ")}</textarea>
+        </div>
+      `;
+      groupsContainer.appendChild(gBox);
+
+      // Event listener for textarea
+      const ta = gBox.querySelector("textarea");
+      ta.addEventListener("keyup", (e) => handleTyping(e, ta, g.id));
+      ta.addEventListener("input", () => {
+        saveStateFromDom();
+        updateLiveCardStats();
+      });
+      ta.addEventListener("change", () => {
+        saveStateFromDom();
+        updateLiveCardStats();
+      });
+    });
+    
+    updateLiveCardStats();
+    
+    bannerEl.removeEventListener("input", bannerChangeHandler);
+    bannerEl.addEventListener("input", bannerChangeHandler);
+  }
+
+  function bannerChangeHandler() {
+    data.banner = bannerEl.value; 
+    saveData();
+  }
+
+  locationsEl.addEventListener("input", syncLocations);
+  locationsEl.addEventListener("change", syncLocations);
+
+  function syncLocations(e) {
+    let parts = locationsEl.value.split(",");
+    let locNames = parts.map(s => s.trim()).filter(s => s);
+    
+    // Check duplicates
+    let seen = new Set();
+    let duplicateName = null;
+    for (let name of locNames) {
+      if (seen.has(name)) {
+        duplicateName = name;
+        break;
+      }
+      seen.add(name);
+    }
+    
+    if (duplicateName) {
+      let existingGroup = data.groups.find(g => g.title === duplicateName);
+      if (existingGroup) {
+        window.showGroupError(existingGroup.id, `Location "${duplicateName}" already exists!`);
+      }
+      // Deduplicate names
+      locNames = [...new Set(locNames)];
+    }
+    
+    // Deletion check if deleting populated groups is disabled
+    const allowDelete = document.getElementById("allow-delete-populated").checked;
+    if (!allowDelete && locNames.length < data.groups.length) {
+      let removedGroups = data.groups.slice(locNames.length);
+      let blockedGroup = removedGroups.find(g => g.assigned && g.assigned.length > 0);
+      if (blockedGroup) {
+        window.showGroupError(blockedGroup.id, `Cannot delete group "${blockedGroup.title}" with assigned staff`);
+        locationsEl.value = data.groups.map(g => g.title).join(", ");
+        return;
+      }
+    }
+    
+    const newGroups = [];
+    locNames.forEach((name, index) => {
+      let existing = data.groups[index];
+      if (existing) {
+        existing.title = name;
+        newGroups.push(existing);
+      } else {
+        newGroups.push({
+          id: Date.now() + Math.random() + index,
+          title: name,
+          color: colors[index % colors.length],
+          assigned: [],
+          description: ""
+        });
+      }
+    });
+    
+    data.groups = newGroups;
+    saveData();
+    render(false); // Do not overwrite user's locations textarea while typing!
+  }
+
+  function changeColor(id, color) {
+    const g = data.groups.find(x => x.id === id);
+    if(g) { g.color = color; saveData(); render(); }
+  }
+
+  function updateTitle(id, title) {
+    const g = data.groups.find(x => x.id === id);
+    if(g) { 
+      g.title = title; 
+      saveData(); 
+      locationsEl.value = data.groups.map(g => g.title).join(", ");
+    }
+  }
+
+  function updateDescription(id, desc) {
+    const g = data.groups.find(x => x.id === id);
+    if(g) {
+      g.description = desc;
+      saveData();
+    }
+  }
+
+  function removeGroup(id) {
+    const group = data.groups.find(x => x.id === id);
+    if (!group) return;
+
+    const allowDelete = document.getElementById("allow-delete-populated").checked;
+    
+    if (group.assigned.length > 0 && !allowDelete) {
+      window.showGroupError(id, 'Attempted to delete group with users assigned');
+      return;
+    }
+
+    data.groups = data.groups.filter(x => x.id !== id);
+    saveData();
+    locationsEl.value = data.groups.map(g => g.title).join(", ");
+    render();
+  }
+
+  function saveStateFromDom() {
+    data.groups.forEach(g => {
+      const ta = document.getElementById("group-text-" + g.id);
+      if(ta) {
+        g.assigned = ta.value.split(",").map(s => s.trim()).filter(s => s);
+        const watermark = document.getElementById("watermark-count-" + g.id);
+        if (watermark) {
+          watermark.innerText = g.assigned.length;
+        }
+      }
+    });
+    saveData();
+  }
+
+  function saveData() {
+    localStorage.setItem("assignerData", JSON.stringify(data));
+    const iframe = document.querySelector('.preview-iframe');
+    if (iframe && iframe.contentWindow) {
+      try {
+        iframe.contentWindow.postMessage('assignerDataUpdate', '*');
+      } catch(e) {}
+    }
+  }
+
+  document.addEventListener('paste', (e) => {
+    if (e.target.tagName.toLowerCase() !== 'textarea') return;
+    
+    e.preventDefault();
+    let paste = (e.clipboardData || window.clipboardData).getData('text');
+    paste = paste.replace(/[\r\n\t;]+/g, ', ');
+    paste = paste.replace(/,\s*,/g, ',');
+    
+    const start = e.target.selectionStart;
+    const end = e.target.selectionEnd;
+    const val = e.target.value;
+    
+    e.target.value = val.substring(0, start) + paste + val.substring(end);
+    
+    if (e.target.id === 'locations-text') {
+       let parts = e.target.value.split(',').map(s => s.trim()).filter(s => s);
+       let unique = [...new Set(parts)];
+       e.target.value = unique.join(', ') + ', ';
+       const event = new Event('change');
+       e.target.dispatchEvent(event);
+    } else if (e.target.id.startsWith('group-text-')) {
+       let sourceId = parseFloat(e.target.id.replace('group-text-', ''));
+       
+       let parts = e.target.value.split(',').map(s => s.trim()).filter(s => s);
+       let unique = [...new Set(parts)];
+       e.target.value = unique.join(', ') + (e.target.value.endsWith(',') || e.target.value.endsWith(', ') ? ', ' : '');
+       
+       saveStateFromDom();
+       
+       let conflicts = [];
+       for (const name of unique) {
+          for (const g of data.groups) {
+             if (g.id !== sourceId && g.assigned.includes(name)) {
+                conflicts.push({name: name, otherId: g.id});
+             }
+          }
+       }
+       
+       if (conflicts.length > 0) {
+          showBulkDuplicateModal(conflicts, sourceId);
+       } else {
+          saveData();
+          render();
+       }
+    }
+  });
+
+  function handleTyping(e, textarea, sourceId) {
+    if (e.key === ',') {
+      const val = textarea.value;
+      const parts = val.split(",");
+      if (parts.length < 2) return;
+      const newName = parts[parts.length - 2].trim(); 
+      if (!newName) return;
+      
+      saveStateFromDom(); 
+
+      let foundIn = null;
+      for (const g of data.groups) {
+        if (g.id !== sourceId && g.assigned.includes(newName)) {
+          foundIn = g.id;
+          break;
+        }
+      }
+
+      if (foundIn !== null) {
+        showDuplicateModal(newName, sourceId, foundIn);
+      }
+    }
+  }
+
+  function showDuplicateModal(name, sourceId, otherId) {
+    let otherName = data.groups.find(g => g.id === otherId).title;
+    
+    document.getElementById("dup-message").innerText = `Name "${name}" is already in ${otherName}.`;
+    
+    let otherTa = document.getElementById("group-text-" + otherId);
+    if(otherTa) {
+       otherTa.classList.add("highlight");
+       setTimeout(() => otherTa.classList.remove("highlight"), 2000);
+    }
+    
+    document.getElementById("overlay").style.display = "block";
+    document.getElementById("duplicate-modal").style.display = "block";
+
+    document.getElementById("btn-remove-other").onclick = () => {
+      removeNameFrom(name, otherId);
+      closeModal();
+      saveData();
+      render(); 
+    };
+    
+    document.getElementById("btn-delete-current").onclick = () => {
+      removeNameFrom(name, sourceId);
+      closeModal();
+      saveData();
+      render();
+    };
+  }
+
+  function showBulkDuplicateModal(conflicts, sourceId) {
+    let message = "The following names are already in other locations:\n";
+    conflicts.forEach(c => {
+       let otherName = data.groups.find(g => g.id === c.otherId).title;
+       message += `- ${c.name} (in ${otherName})\n`;
+       let otherTa = document.getElementById("group-text-" + c.otherId);
+       if(otherTa) {
+          otherTa.classList.add("highlight");
+          setTimeout(() => otherTa.classList.remove("highlight"), 2000);
+       }
+    });
+    
+    document.getElementById("dup-message").innerText = message;
+    
+    document.getElementById("overlay").style.display = "block";
+    document.getElementById("duplicate-modal").style.display = "block";
+
+    const btnRemoveOther = document.getElementById("btn-remove-other");
+    const btnDeleteCurrent = document.getElementById("btn-delete-current");
+    
+    const origRemoveText = btnRemoveOther.innerText;
+    const origDeleteText = btnDeleteCurrent.innerText;
+
+    btnRemoveOther.innerText = "Steal all (Remove from others)";
+    btnDeleteCurrent.innerText = "Ignore all (Delete from current box)";
+
+    const cleanUp = () => {
+      btnRemoveOther.innerText = origRemoveText;
+      btnDeleteCurrent.innerText = origDeleteText;
+      closeModal();
+    };
+
+    btnRemoveOther.onclick = () => {
+      conflicts.forEach(c => removeNameFrom(c.name, c.otherId));
+      cleanUp();
+      saveData();
+      render(); 
+    };
+    
+    btnDeleteCurrent.onclick = () => {
+      conflicts.forEach(c => removeNameFrom(c.name, sourceId));
+      cleanUp();
+      saveData();
+      render();
+    };
+  }
+
+  function removeNameFrom(name, id) {
+    let g = data.groups.find(x => x.id === id);
+    if(g) {
+      g.assigned = g.assigned.filter(n => n !== name);
+    }
+  }
+
+  function closeModal() {
+    document.getElementById("overlay").style.display = "none";
+    document.getElementById("duplicate-modal").style.display = "none";
+  }
+
+  // Callable function to display an error for a specific group
+  window.showGroupError = function(groupId, message) {
+    const gBox = document.querySelector(`.group-box[data-id='${groupId}']`);
+    if(gBox) {
+      gBox.classList.add("error-glow");
+      // Remove the glow after 3 seconds
+      setTimeout(() => gBox.classList.remove("error-glow"), 3000);
+    }
+    const errBar = document.getElementById("error-output");
+    errBar.innerText = message || "An error occurred in a group.";
+    errBar.style.display = "block";
+    // Hide the error bar after 5 seconds
+    setTimeout(() => {
+      errBar.style.display = "none";
+    }, 5000);
+  };
+
+  loadData();
+  
+  // Dynamically set the live preview to match the window's aspect ratio
+  function adjustPreviewAspectRatio() {
+    const preview = document.querySelector('.preview-container');
+    if (preview) {
+      const ratio = window.innerHeight / window.innerWidth;
+      const targetHeight = preview.offsetWidth * ratio;
+      preview.style.height = targetHeight + 'px';
+      preview.style.flex = 'none'; // Overrides the CSS flex:1 so explicit height is respected
+    }
+  }
+  window.addEventListener('resize', adjustPreviewAspectRatio);
+  // Call once after layout initializes
+  setTimeout(adjustPreviewAspectRatio, 50);
+
+  // Multi-Monitor Window Management
+  let selectedMonitor = null;
+  let availableScreens = [];
+
+  async function detectMonitors() {
+    if (!('getScreenDetails' in window)) {
+      alert('Multi-monitor detection is not supported by your browser. Please try Chrome/Edge.');
+      return;
+    }
+    try {
+      const screenDetails = await window.getScreenDetails();
+      availableScreens = screenDetails.screens;
+      renderMonitorList();
+      
+      screenDetails.addEventListener('screenschange', () => {
+        availableScreens = screenDetails.screens;
+        renderMonitorList();
+      });
+      
+      document.getElementById("detect-monitors-btn").style.display = 'none';
+      document.getElementById("monitor-selection").style.display = 'block';
+    } catch (err) {
+      console.error(err);
+      alert('Permission denied or error detecting monitors.');
+    }
+  }
+
+  function renderMonitorList() {
+    const list = document.getElementById("monitor-list");
+    list.innerHTML = "";
+    availableScreens.forEach((screen, i) => {
+      const label = document.createElement("label");
+      label.style.display = "flex";
+      label.style.alignItems = "center";
+      label.style.gap = "5px";
+      label.style.cursor = "pointer";
+      
+      const isChecked = selectedMonitor === i || (selectedMonitor === null && i === 0);
+      if (isChecked) selectedMonitor = i;
+      
+      label.innerHTML = `
+        <input type="radio" name="monitor" value="${i}" ${isChecked ? 'checked' : ''} onchange="selectedMonitor = ${i}">
+        ${screen.label || 'Monitor ' + (i + 1)} (${screen.width}x${screen.height}) ${screen.isPrimary ? '(Primary)' : ''}
+      `;
+      list.appendChild(label);
+    });
+  }
+
+  function openPresentation() {
+    const viewInput = document.querySelector('input[name="presentation-view"]:checked');
+    const selectedView = viewInput ? viewInput.value : 'present.htm';
+    
+    let features = 'popup=1';
+    if (availableScreens.length > 0 && selectedMonitor !== null) {
+      const screen = availableScreens[selectedMonitor];
+      features = `popup=1,left=${screen.availLeft},top=${screen.availTop},width=${screen.width},height=${screen.height}`;
+    } else {
+      features = '_blank';
+    }
+    window.open(selectedView, 'AssignerPresentation', features);
+  }
+</script>
+
+</body>
+</html>
