@@ -168,28 +168,45 @@
       z-index: 3;
       box-sizing: border-box;
     }
+    .permanent-qr-card {
+      background: rgba(20, 18, 16, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 5px 6px;
+      text-align: center;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+      display: block;
+    }
     #permanent-qr {
       background: #ffffff;
-      padding: 3px;
+      padding: 4px;
       border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 68px;
-      height: 68px;
-      box-sizing: border-box;
-      overflow: hidden;
+      width: fit-content;
+      margin: 0 auto;
     }
     #permanent-qr canvas {
       display: none !important;
     }
     #permanent-qr img {
       display: block !important;
-      width: 62px !important;
-      height: 62px !important;
-      max-width: 100% !important;
-      max-height: 100% !important;
+      width: 68px !important;
+      height: 68px !important;
       margin: 0 auto !important;
+    }
+    .qr-label {
+      display: block;
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: var(--muted, #9a9284);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 3px;
+      line-height: 1.1;
+      white-space: nowrap;
     }
   </style>
 </head>
@@ -204,9 +221,9 @@
       style="margin: 6px 0 16px 0; z-index: 2; position: relative; font-size: 1em; color: var(--muted); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;">
     </p>
     <div style="position: absolute; top: 1.25rem; right: 1.5rem; display: flex; gap: 8px; align-items: flex-start; z-index: 25;">
-      <div id="permanent-qr-card" style="background: rgba(20, 18, 16, 0.75); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 8px; padding: 5px 6px; text-align: center; backdrop-filter: blur(4px); box-shadow: 0 4px 15px rgba(0,0,0,0.35);">
-        <div id="permanent-qr" style="background: #ffffff; padding: 4px; border-radius: 4px; display: flex; align-items: center; justify-content: center;"></div>
-        <div style="font-size: 0.62rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 3px;">Mobile Roster</div>
+      <div id="permanent-qr-card" class="permanent-qr-card">
+        <div id="permanent-qr"></div>
+        <span class="qr-label">Mobile Roster</span>
       </div>
       <div id="live-clock" style="font-family: Fraunces, 'Times New Roman', serif; font-variant-numeric: tabular-nums; font-size: 1.15rem; font-weight: 500; color: var(--muted); letter-spacing: 0.05em; background: rgba(20, 18, 16, 0.75); padding: 4px 12px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px);">00:00:00</div>
       <button id="fullscreen-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen (F)" style="background: rgba(20, 18, 16, 0.75); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 7px 9px; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
