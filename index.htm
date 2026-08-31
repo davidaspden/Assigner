@@ -81,6 +81,15 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 6px;
+    min-width: 250px;
+    max-width: 380px;
+  }
+  .left-pane h3 {
+    margin: 6px 0 3px;
+    font-size: 0.92rem;
   }
   .right-pane {
     flex: 3;
@@ -109,17 +118,17 @@
     padding: 8px;
   }
   .left-pane textarea {
-    flex: 1;
+    flex: none;
   }
   .preview-container {
-    margin-top: 10px;
-    flex: 1;
+    margin-top: 6px;
     position: relative;
     border: 1px solid #ccc;
     border-radius: 5px;
     overflow: hidden;
     cursor: pointer;
-    min-height: 200px;
+    min-height: 100px;
+    max-height: 170px;
   }
   .preview-iframe {
     width: 400%;
@@ -143,6 +152,7 @@
     opacity: 1;
   }
   .group-box {
+    container-type: inline-size;
     border: 1px solid rgba(0, 0, 0, 0.12);
     padding: 10px 12px 12px;
     border-radius: 8px;
@@ -153,6 +163,37 @@
     position: relative;
     box-shadow: 0 2px 5px rgba(0,0,0,0.06);
     transition: transform 0.15s, box-shadow 0.15s;
+  }
+  @container (max-width: 320px) {
+    .color-picker {
+      display: none;
+    }
+  }
+
+  @media (max-height: 680px) {
+    .header {
+      padding: 6px 14px;
+    }
+    .header-titles .app-tagline {
+      display: none;
+    }
+    .app-title {
+      font-size: 1.25rem;
+    }
+    .main {
+      padding: 6px 8px;
+      gap: 8px;
+    }
+    .banner-edit {
+      padding: 6px 12px;
+    }
+    .preview-container {
+      min-height: 85px;
+      max-height: 130px;
+    }
+    .textarea-wrapper {
+      min-height: 75px;
+    }
   }
   .group-header {
     display: flex;
@@ -693,16 +734,16 @@
 
 <div class="main">
   <div class="left-pane">
-    <h3 style="margin-top: 0;">Presentation Title</h3>
-    <input type="text" id="presentation-title" placeholder="Enter presentation title..." style="width: 100%; padding: 8px; margin-bottom: 20px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+    <h3 style="margin: 2px 0 3px;">Presentation Title</h3>
+    <input type="text" id="presentation-title" placeholder="Enter presentation title..." style="width: 100%; padding: 6px 8px; margin-bottom: 6px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; font-size: 0.9em;">
 
-    <h3>Locations</h3>
-    <textarea id="locations-text" placeholder="Type locations separated by comma..."></textarea>
-    <label style="margin-top: 10px; font-size: 0.9em;">
+    <h3 style="margin: 4px 0 3px;">Locations</h3>
+    <textarea id="locations-text" placeholder="Type locations separated by comma..." style="height: 48px; min-height: 40px; padding: 6px 8px; font-size: 0.88rem;"></textarea>
+    <label style="margin-top: 4px; font-size: 0.84em; display: flex; align-items: center; gap: 4px; color: #555;">
       <input type="checkbox" id="allow-delete-populated"> Allow deleting populated groups
     </label>
     
-    <h3 style="margin-top: 20px;">Live Preview</h3>
+    <h3 style="margin: 6px 0 3px;">Live Preview</h3>
     <div class="preview-container" onclick="openPresentation()">
       <iframe src="present.htm" class="preview-iframe"></iframe>
       <div class="preview-overlay">
