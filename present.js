@@ -354,7 +354,8 @@ function updateTotalCount() {
 }
 
 function getLoopSeconds() {
-    return Math.max(3, N * SECONDS_PER_CARD);
+    const secPerCard = (assignerData && typeof assignerData.sweepSpeed === 'number' && assignerData.sweepSpeed > 0) ? assignerData.sweepSpeed : (SECONDS_PER_CARD || 3.0);
+    return Math.max(2, N * secPerCard);
 }
 
 /* --- the rail --- */

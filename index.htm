@@ -720,10 +720,24 @@
         <input type="radio" name="presentation-view" value="present.htm" checked onchange="document.querySelector('.preview-iframe').src = this.value">
         Grid View
       </label>
-      <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; margin-bottom: 8px;">
+      <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; margin-bottom: 6px;">
         <input type="radio" name="presentation-view" value="present2.htm" onchange="document.querySelector('.preview-iframe').src = this.value">
         Accordion View (Sweep)
       </label>
+      
+      <!-- Sweep Speed Controller -->
+      <div id="sweep-speed-container" style="margin: 2px 0 8px 18px; padding: 6px 10px; background: rgba(255,255,255,0.7); border-radius: 6px; border: 1px solid rgba(0,0,0,0.09);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+          <span style="font-size: 0.82em; font-weight: 600; color: #444;">Sweep Speed:</span>
+          <span id="sweep-speed-label" style="font-size: 0.82em; font-weight: 700; color: #0284c7;">3.0s / station</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 0.72em; color: #777;">1.5s</span>
+          <input type="range" id="sweep-speed-slider" min="1.5" max="10" step="0.5" value="3" style="flex: 1; cursor: pointer; height: 4px;" oninput="updateSweepSpeed(parseFloat(this.value))">
+          <span style="font-size: 0.72em; color: #777;">10s</span>
+        </div>
+      </div>
+
       <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; border-top: 1px solid rgba(0,0,0,0.08); padding-top: 6px;">
         <input type="checkbox" id="show-qr-toggle" checked onchange="toggleShowQr(this.checked)">
         Display Mobile QR Code on Presentation
@@ -748,15 +762,16 @@
       </button>
       <div id="monitor-selection" style="display: none; padding: 8px 10px; background: rgba(0,0,0,0.05); border-radius: 4px; border: 1px solid rgba(0,0,0,0.08);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-          <strong style="font-size: 0.95em;">Launch on Monitor:</strong>
-          <button id="refresh-monitors-btn" onclick="detectMonitors()" title="Refresh connected screens" style="display: flex; align-items: center; gap: 4px; font-size: 0.82em; padding: 3px 7px; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer; font-family: inherit;">
-            <svg id="refresh-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <strong style="font-size: 0.9em;">Launch on Monitor:</strong>
+          <button id="refresh-monitors-btn" onclick="detectMonitors()" title="Refresh connected screens" style="display: flex; align-items: center; gap: 4px; font-size: 0.8em; padding: 2px 6px; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer; font-family: inherit;">
+            <svg id="refresh-icon-svg" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
             </svg>
             Refresh
           </button>
         </div>
-        <div id="monitor-list" style="display: flex; flex-direction: column; gap: 5px;"></div>
+        <select id="monitor-select" style="width: 100%; padding: 6px 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 0.86em; font-family: inherit; background: #fff; box-sizing: border-box;" onchange="selectedMonitor = parseInt(this.value, 10)">
+        </select>
       </div>
     </div>
   </div>
@@ -1041,6 +1056,13 @@
     const soundToggle = document.getElementById("sound-toggle");
     if (soundToggle) soundToggle.checked = (data.soundEnabled !== false);
 
+    const speedSlider = document.getElementById("sweep-speed-slider");
+    const speedLabel = document.getElementById("sweep-speed-label");
+    const speedVal = (typeof data.sweepSpeed === 'number' && data.sweepSpeed > 0) ? data.sweepSpeed : 3.0;
+    data.sweepSpeed = speedVal;
+    if (speedSlider) speedSlider.value = speedVal;
+    if (speedLabel) speedLabel.textContent = `${speedVal.toFixed(1)}s / station`;
+
     locationsEl.value = data.groups.map(g => g.title).join(", ");
     titleEl.value = data.title;
     render();
@@ -1053,6 +1075,13 @@
 
   function toggleSound(val) {
     data.soundEnabled = val;
+    saveData();
+  }
+
+  function updateSweepSpeed(val) {
+    data.sweepSpeed = val;
+    const speedLabel = document.getElementById("sweep-speed-label");
+    if (speedLabel) speedLabel.textContent = `${val.toFixed(1)}s / station`;
     saveData();
   }
 
@@ -1071,6 +1100,13 @@
         data.showQr = parsed.showQr;
         const qrToggle = document.getElementById("show-qr-toggle");
         if (qrToggle) qrToggle.checked = (data.showQr !== false);
+      }
+      if (parsed.sweepSpeed !== undefined && parsed.sweepSpeed !== data.sweepSpeed) {
+        data.sweepSpeed = parsed.sweepSpeed;
+        const speedSlider = document.getElementById("sweep-speed-slider");
+        const speedLabel = document.getElementById("sweep-speed-label");
+        if (speedSlider) speedSlider.value = data.sweepSpeed;
+        if (speedLabel) speedLabel.textContent = `${Number(data.sweepSpeed).toFixed(1)}s / station`;
       }
     } catch(e) {}
   }
@@ -1842,23 +1878,18 @@
   }
 
   function renderMonitorList() {
-    const list = document.getElementById("monitor-list");
-    list.innerHTML = "";
+    const select = document.getElementById("monitor-select");
+    if (!select) return;
+    select.innerHTML = "";
     availableScreens.forEach((screen, i) => {
-      const label = document.createElement("label");
-      label.style.display = "flex";
-      label.style.alignItems = "center";
-      label.style.gap = "5px";
-      label.style.cursor = "pointer";
-      
-      const isChecked = selectedMonitor === i || (selectedMonitor === null && i === 0);
-      if (isChecked) selectedMonitor = i;
-      
-      label.innerHTML = `
-        <input type="radio" name="monitor" value="${i}" ${isChecked ? 'checked' : ''} onchange="selectedMonitor = ${i}">
-        ${screen.label || 'Monitor ' + (i + 1)} (${screen.width}x${screen.height}) ${screen.isPrimary ? '(Primary)' : ''}
-      `;
-      list.appendChild(label);
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.textContent = `${screen.label || 'Display ' + (i + 1)} (${screen.width}×${screen.height})${screen.isPrimary ? ' ⭐ Primary' : ''}`;
+      if (selectedMonitor === i || (selectedMonitor === null && i === 0)) {
+        opt.selected = true;
+        selectedMonitor = i;
+      }
+      select.appendChild(opt);
     });
   }
 
@@ -1912,10 +1943,10 @@
       body: "Using multiple screens? Assigner detects connected displays and lets you cast presentations edge-to-edge onto wall displays with a single click."
     },
     {
-      target: ".preview-container",
+      target: "#view-setup",
       badge: "Step 6/7",
-      title: "Presentation Views & Launch",
-      body: "Choose between <strong>Grid View</strong> (all cards at a glance) or <strong>3D Accordion Sweep</strong> (rotates through stations with audio chimes). Click the live preview box anytime to launch full-screen!"
+      title: "Views, Speed & Launch",
+      body: "Choose between <strong>Grid View</strong> or the <strong>3D Accordion Sweep</strong>. Use the <strong>Sweep Speed slider</strong> to control rotation pace (1.5s–10s per station), toggle audio chimes, and click the live preview above to launch full-screen!"
     },
     {
       target: ".header-actions",

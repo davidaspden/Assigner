@@ -55,90 +55,149 @@
 
     .main-content {
       flex: 1;
-      padding: 10px 40px 100px;
+      padding: 16px clamp(1rem, 3.5vw, 3rem) 100px;
       z-index: 2;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 24px;
-      justify-content: center;
-      align-items: flex-start;
-      align-content: center;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(clamp(250px, 20vw, 360px), 1fr));
+      gap: clamp(14px, 1.8vw, 24px);
+      align-items: stretch;
+      align-content: start;
       overflow-y: auto;
       min-height: 0;
+      width: 100%;
+      max-width: 2200px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+
+    /* Optimized Grid Profiles based on active Card Count */
+    .main-content[data-count="1"] {
+      grid-template-columns: minmax(320px, 580px);
+      justify-content: center;
+    }
+    .main-content[data-count="2"] {
+      grid-template-columns: repeat(2, minmax(280px, 1fr));
+    }
+    .main-content[data-count="3"] {
+      grid-template-columns: repeat(3, minmax(260px, 1fr));
+    }
+    .main-content[data-count="4"] {
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    }
+
+    @media (max-width: 900px) {
+      .main-content[data-count="3"],
+      .main-content[data-count="2"] {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      }
     }
 
     .card {
-      border-radius: 10px;
-      padding: 15px;
-      width: 250px;
-      min-height: 150px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+      border-radius: 14px;
+      padding: 16px 18px 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
       background-color: white;
       color: #111;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
+      min-height: 180px;
+      box-sizing: border-box;
+    }
+
+    .card-header-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border-bottom: 2px solid rgba(0, 0, 0, 0.15);
+      padding-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .card-title {
-      font-size: 1.2em;
-      font-weight: bold;
-      margin-bottom: 6px;
-      border-bottom: 2px solid rgba(0, 0, 0, 0.15);
-      padding-bottom: 5px;
+      font-size: clamp(1.15rem, 1.4vw, 1.55rem);
+      font-weight: 700;
       color: #111;
-      text-align: center;
+      margin: 0;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .card-count-badge {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.12);
+      color: inherit;
+      white-space: nowrap;
     }
 
     .card-desc {
-      font-size: 0.9em;
+      font-size: clamp(0.82rem, 0.9vw, 0.95rem);
       font-style: italic;
-      margin-top: 10px;
+      margin-top: 12px;
       padding-top: 8px;
       border-top: 1px solid rgba(0, 0, 0, 0.15);
       text-align: center;
       line-height: 1.35;
+      opacity: 0.85;
     }
 
     /* Dark theme contrast for grid presentation cards */
     .card.is-dark-theme {
       color: #ffffff;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    }
+    .card.is-dark-theme .card-header-box {
+      border-bottom-color: rgba(255, 255, 255, 0.25);
     }
     .card.is-dark-theme .card-title {
       color: #ffffff;
-      border-bottom-color: rgba(255, 255, 255, 0.22);
+    }
+    .card.is-dark-theme .card-count-badge {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
     }
     .card.is-dark-theme .card-assigned li {
       color: #ffffff;
-      background: rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.15);
       border-bottom-color: rgba(255, 255, 255, 0.15);
     }
     .card.is-dark-theme .card-desc {
-      color: rgba(255, 255, 255, 0.8);
-      border-top-color: rgba(255, 255, 255, 0.22);
+      color: rgba(255, 255, 255, 0.85);
+      border-top-color: rgba(255, 255, 255, 0.25);
     }
 
     /* Light theme contrast */
     .card.is-light-theme {
       color: #111111;
     }
+    .card.is-light-theme .card-header-box {
+      border-bottom-color: rgba(0, 0, 0, 0.15);
+    }
     .card.is-light-theme .card-title {
       color: #111111;
-      border-bottom-color: rgba(0, 0, 0, 0.15);
+    }
+    .card.is-light-theme .card-count-badge {
+      background: rgba(0, 0, 0, 0.1);
+      color: #111111;
     }
     .card.is-light-theme .card-assigned li {
       color: #111111;
-      background: rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.45);
       border-bottom-color: rgba(0, 0, 0, 0.08);
     }
     .card.is-light-theme .card-desc {
-      color: rgba(0, 0, 0, 0.65);
+      color: rgba(0, 0, 0, 0.7);
       border-top-color: rgba(0, 0, 0, 0.15);
     }
 
     .card-assigned {
       flex: 1;
       overflow-y: auto;
+      min-height: 40px;
     }
 
     .card-assigned ul {
@@ -147,7 +206,27 @@
       margin: 0;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
+    }
+
+    .card-assigned ul.cols-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .card-assigned ul.cols-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .card-empty-state {
+      padding: 12px 8px;
+      font-size: 0.88rem;
+      font-style: italic;
+      opacity: 0.65;
+      text-align: center;
     }
 
     @keyframes rollingSheen {
@@ -157,10 +236,11 @@
 
     .card-assigned li {
       position: relative;
-      padding: 6px 8px;
+      padding: 6px 10px;
       border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-      border-radius: 4px;
-      color: #111;
+      border-radius: 6px;
+      color: inherit;
+      font-size: clamp(0.85rem, 1vw, 1.05rem);
       font-weight: 500;
       overflow: hidden;
       background: rgba(255, 255, 255, 0.2);
@@ -198,14 +278,17 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      background-color: #333;
-      color: white;
-      padding: 15px;
+      background-color: rgba(20, 18, 16, 0.94);
+      color: #f3eee6;
+      padding: 12px 24px;
       text-align: center;
-      font-size: 1.5em;
-      font-weight: bold;
-      z-index: 3;
+      font-size: clamp(1.1rem, 1.6vw, 1.6rem);
+      font-weight: 600;
+      z-index: 30;
       box-sizing: border-box;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
     }
     .permanent-qr-card {
       background: rgba(20, 18, 16, 0.75);
@@ -465,6 +548,8 @@
       }
 
       const groups = data.groups || [];
+      container.dataset.count = groups.length;
+
       const totalPeople = groups.reduce((acc, g) => acc + ((g.assigned && Array.isArray(g.assigned)) ? g.assigned.length : 0), 0);
       const totalCards = groups.length;
       const peopleLabel = totalPeople === 1 ? "Person" : "People";
@@ -497,9 +582,12 @@
           card.className = "card";
           card.dataset.groupId = g.id;
           card.innerHTML = `
-          <div class="card-title"></div>
-          <div class="card-assigned"><ul></ul></div>
-        `;
+            <div class="card-header-box">
+              <h2 class="card-title"></h2>
+              <span class="card-count-badge">0</span>
+            </div>
+            <div class="card-assigned"><ul></ul></div>
+          `;
           container.appendChild(card);
         }
 
@@ -511,20 +599,14 @@
         const titleText = g.title || 'Untitled';
         if (titleEl.innerText !== titleText) titleEl.innerText = titleText;
 
-        let descEl = card.querySelector(".card-desc");
-        if (g.description) {
-          if (!descEl) {
-            descEl = document.createElement("div");
-            descEl.className = "card-desc";
-            card.appendChild(descEl);
-          }
-          if (descEl.innerText !== g.description) descEl.innerText = g.description;
-        } else if (descEl) {
-          descEl.remove();
-        }
+        const assignedList = Array.isArray(g.assigned) ? g.assigned : [];
+        const countBadge = card.querySelector(".card-count-badge");
+        if (countBadge) countBadge.innerText = assignedList.length;
 
         const ul = card.querySelector("ul");
-        const sortedAssigned = [...g.assigned].sort((a, b) => a.localeCompare(b));
+        ul.className = assignedList.length >= 16 ? "cols-3" : (assignedList.length >= 8 ? "cols-2" : "");
+
+        const sortedAssigned = [...assignedList].sort((a, b) => a.localeCompare(b));
 
         let existingLis = Array.from(ul.querySelectorAll("li"));
         let existingNames = existingLis.map(li => li.innerText);
@@ -545,6 +627,18 @@
 
           ul.innerHTML = "";
           newNodes.forEach(li => ul.appendChild(li));
+        }
+
+        let descEl = card.querySelector(".card-desc");
+        if (g.description) {
+          if (!descEl) {
+            descEl = document.createElement("div");
+            descEl.className = "card-desc";
+            card.appendChild(descEl);
+          }
+          if (descEl.innerText !== g.description) descEl.innerText = g.description;
+        } else if (descEl) {
+          descEl.remove();
         }
       });
 
