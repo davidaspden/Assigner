@@ -465,6 +465,147 @@
     background: rgba(0,0,0,0.5);
     z-index: 999;
   }
+
+  /* --- First Run Spotlight Tour --- */
+  #spotlight-cutout {
+    position: fixed;
+    border-radius: 8px;
+    box-shadow: 0 0 0 9999px rgba(11, 10, 8, 0.78);
+    transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    pointer-events: none;
+    z-index: 1000;
+    display: none;
+    outline: 2px solid #38bdf8;
+  }
+
+  #tour-popover {
+    position: fixed;
+    z-index: 1001;
+    background: #181614;
+    color: #f3eee6;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
+    padding: 16px 18px;
+    width: 320px;
+    max-width: calc(100vw - 32px);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+    transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    display: none;
+    font-family: inherit;
+  }
+
+  .tour-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .tour-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.15);
+    padding: 3px 8px;
+    border-radius: 12px;
+  }
+
+  .tour-close-btn {
+    background: transparent;
+    border: none;
+    color: #9a9284;
+    cursor: pointer;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tour-close-btn:hover {
+    color: #ffffff;
+  }
+
+  .tour-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0 0 6px 0;
+    color: #ffffff;
+  }
+
+  .tour-body {
+    font-size: 0.88rem;
+    line-height: 1.45;
+    color: #c9c3b8;
+    margin-bottom: 14px;
+  }
+
+  .tour-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .tour-btn-group {
+    display: flex;
+    gap: 6px;
+  }
+
+  .tour-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.1);
+    color: #f3eee6;
+    transition: all 0.15s ease;
+    font-family: inherit;
+  }
+  .tour-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  .tour-btn.primary {
+    background: #38bdf8;
+    border-color: #0284c7;
+    color: #0b0a08;
+  }
+  .tour-btn.primary:hover {
+    background: #7dd3fc;
+  }
+  .tour-btn.text-only {
+    background: transparent;
+    border-color: transparent;
+    color: #9a9284;
+  }
+  .tour-btn.text-only:hover {
+    color: #ffffff;
+  }
+
+  /* Welcome Prompt Toast */
+  #tour-welcome-prompt {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #181614;
+    color: #f3eee6;
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    border-radius: 12px;
+    padding: 12px 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+    display: none;
+    align-items: center;
+    gap: 16px;
+    z-index: 999;
+    font-family: inherit;
+    animation: slideUpPrompt 0.4s ease-out;
+  }
+  @keyframes slideUpPrompt {
+    from { opacity: 0; transform: translate(-50%, 20px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
@@ -506,8 +647,16 @@
       <span class="app-tagline">Quickly display group info</span>
     </div>
   </div>
-  <div style="display: flex; gap: 8px; align-items: center;">
-    <button onclick="openSlackModal()" title="Export Slack Report" class="header-btn" style="gap: 5px; font-size: 0.85rem; padding: 6px 10px;">
+  <div class="header-actions" style="display: flex; gap: 8px; align-items: center;">
+    <button onclick="startTour()" title="Quick Tour & Help" class="header-btn" id="btn-help-tour" style="gap: 5px; font-size: 0.85rem; padding: 6px 10px; font-weight: 600;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+      Tour
+    </button>
+    <button onclick="openSlackModal()" title="Export Slack Report" class="header-btn" id="btn-slack-modal" style="gap: 5px; font-size: 0.85rem; padding: 6px 10px;">
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
         <path d="M6 15a2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2h2v2zm1 0a2 2 0 0 1 2-2 2 2 0 0 1 2 2v5a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-5zm2-7a2 2 0 0 1-2-2 2 2 0 0 1 2-2 2 2 0 0 1 2 2v2H9zm0 1a2 2 0 0 1 2 2 2 2 0 0 1-2 2H4a2 2 0 0 1-2-2 2 2 0 0 1 2-2h5zm7 2a2 2 0 0 1 2-2 2 2 0 0 1 2 2 2 2 0 0 1-2 2h-2v-2zm-1 0a2 2 0 0 1-2 2 2 2 0 0 1-2-2V6a2 2 0 0 1 2-2 2 2 0 0 1 2 2v5zm-2 7a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2v-2h2zm0-1a2 2 0 0 1-2-2 2 2 0 0 1 2-2h5a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-5z"/>
       </svg>
@@ -701,6 +850,37 @@
   <div class="modal-btn-row">
     <button class="modal-btn" onclick="closeAppModal('color-modal')">Cancel</button>
     <button class="modal-btn primary" onclick="applyModalColor()">Done</button>
+  </div>
+</div>
+
+<!-- Guided Tour Overlay & Elements -->
+<div id="spotlight-cutout"></div>
+
+<div id="tour-popover">
+  <div class="tour-header">
+    <span class="tour-badge" id="tour-step-badge">Step 1/7</span>
+    <button class="tour-close-btn" onclick="endTour()" title="Close Tour">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="tour-title" id="tour-step-title">Name Your Shift</div>
+  <div class="tour-body" id="tour-step-body">Set a clear title for your shift.</div>
+  <div class="tour-footer">
+    <button class="tour-btn text-only" onclick="endTour()">Skip</button>
+    <div class="tour-btn-group">
+      <button class="tour-btn" id="tour-btn-back" onclick="prevTourStep()">← Back</button>
+      <button class="tour-btn primary" id="tour-btn-next" onclick="nextTourStep()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<div id="tour-welcome-prompt">
+  <div style="font-size: 0.92rem; font-weight: 500;">
+    ✨ <strong>Welcome to Assigner!</strong> Take a quick 45-second tour?
+  </div>
+  <div style="display: flex; gap: 8px;">
+    <button class="tour-btn text-only" onclick="dismissWelcomePrompt()">Skip</button>
+    <button class="tour-btn primary" onclick="startTourFromPrompt()">Take Tour</button>
   </div>
 </div>
 
@@ -1698,6 +1878,220 @@
       win.focus();
     }
   }
+
+  // --- Guided First-Run Spotlight Tour ---
+  const TOUR_STEPS = [
+    {
+      target: "#presentation-title",
+      badge: "Step 1/7",
+      title: "Name Your Shift",
+      body: "Set a clear title for your shift (e.g. <em>Night Shift Roster</em> or <em>Emergency Dept Assignments</em>). This header displays prominently across all presentation screens and mobile devices."
+    },
+    {
+      target: "#locations-text",
+      badge: "Step 2/7",
+      title: "Create Work Stations",
+      body: "Type your departments, wards, or job roles separated by commas (e.g. <em>Triage, Resus, Majors, Mobile Care</em>). Adding or editing them here instantly generates your visual station cards on the right."
+    },
+    {
+      target: "#groups-container",
+      badge: "Step 3/7",
+      title: "Assign Staff & Customise",
+      body: "Type staff names directly into each station card (separated by commas or new lines), or <strong>drag and drop</strong> names between cards. Pick pastel colors, use the color wheel, and add station notes at the bottom."
+    },
+    {
+      target: "#banner-input",
+      badge: "Step 4/7",
+      title: "Broadcast Banner",
+      body: "Type critical announcements or on-call contact numbers here (e.g. <em>Consultant on call: Dr. Smith #4401</em>). This note pins to the bottom ticker on presentation screens and mobile views in real time."
+    },
+    {
+      target: "#monitor-setup",
+      badge: "Step 5/7",
+      title: "Cast to TV / Wall Monitors",
+      body: "Using multiple screens? Assigner detects connected displays and lets you cast presentations edge-to-edge onto wall displays with a single click."
+    },
+    {
+      target: ".preview-container",
+      badge: "Step 6/7",
+      title: "Presentation Views & Launch",
+      body: "Choose between <strong>Grid View</strong> (all cards at a glance) or <strong>3D Accordion Sweep</strong> (rotates through stations with audio chimes). Click the live preview box anytime to launch full-screen!"
+    },
+    {
+      target: ".header-actions",
+      badge: "Step 7/7",
+      title: "Mobile Access & Handover",
+      body: "Click <strong>Share / QR</strong> to display a QR code for staff to view live assignments on their phones, or click <strong>Slack</strong> to generate a clean, one-click handover headcount report for your team channel."
+    }
+  ];
+
+  let currentTourIndex = 0;
+  let isTourActive = false;
+
+  function checkFirstRunTour() {
+    const prompted = localStorage.getItem("assigner_tour_prompted");
+    if (!prompted) {
+      setTimeout(() => {
+        const prompt = document.getElementById("tour-welcome-prompt");
+        if (prompt) prompt.style.display = "flex";
+      }, 1000);
+    }
+  }
+
+  function startTour() {
+    dismissWelcomePrompt();
+
+    // If no groups exist, populate sample demo data for first use
+    const hasData = data && data.groups && data.groups.length > 0;
+    if (!hasData) {
+      data = {
+        title: data.title || "Staff Assignment",
+        banner: data.banner || "",
+        soundEnabled: data.soundEnabled !== false,
+        showQrOnPresent: data.showQrOnPresent !== false,
+        groups: [
+          {
+            id: Date.now(),
+            title: "Demo",
+            assigned: ["John Doe"],
+            description: "Demo user for first use",
+            color: "#fef3c7"
+          }
+        ]
+      };
+      locationsEl.value = "Demo";
+      saveData();
+      render(true);
+      updateLiveCardStats();
+    }
+
+    currentTourIndex = 0;
+    isTourActive = true;
+    document.getElementById("spotlight-cutout").style.display = "block";
+    document.getElementById("tour-popover").style.display = "block";
+    renderTourStep(0);
+    window.addEventListener("resize", repositionTour);
+    window.addEventListener("scroll", repositionTour, true);
+    window.addEventListener("keydown", handleTourKeydown);
+  }
+
+  function startTourFromPrompt() {
+    dismissWelcomePrompt();
+    startTour();
+  }
+
+  function dismissWelcomePrompt() {
+    const prompt = document.getElementById("tour-welcome-prompt");
+    if (prompt) prompt.style.display = "none";
+    localStorage.setItem("assigner_tour_prompted", "true");
+  }
+
+  function endTour() {
+    isTourActive = false;
+    document.getElementById("spotlight-cutout").style.display = "none";
+    document.getElementById("tour-popover").style.display = "none";
+    window.removeEventListener("resize", repositionTour);
+    window.removeEventListener("scroll", repositionTour, true);
+    window.removeEventListener("keydown", handleTourKeydown);
+    localStorage.setItem("assigner_tour_prompted", "true");
+  }
+
+  function handleTourKeydown(e) {
+    if (!isTourActive) return;
+    if (e.key === "Escape") {
+      endTour();
+    } else if (e.key === "ArrowRight") {
+      nextTourStep();
+    } else if (e.key === "ArrowLeft") {
+      prevTourStep();
+    }
+  }
+
+  function nextTourStep() {
+    if (currentTourIndex < TOUR_STEPS.length - 1) {
+      currentTourIndex++;
+      renderTourStep(currentTourIndex);
+    } else {
+      endTour();
+      showToast("Tour completed! Click 'Tour' in the header anytime to replay.");
+    }
+  }
+
+  function prevTourStep() {
+    if (currentTourIndex > 0) {
+      currentTourIndex--;
+      renderTourStep(currentTourIndex);
+    }
+  }
+
+  function renderTourStep(idx) {
+    const step = TOUR_STEPS[idx];
+    if (!step) return;
+
+    document.getElementById("tour-step-badge").textContent = step.badge;
+    document.getElementById("tour-step-title").textContent = step.title;
+    document.getElementById("tour-step-body").innerHTML = step.body;
+
+    const backBtn = document.getElementById("tour-btn-back");
+    backBtn.style.display = idx === 0 ? "none" : "inline-block";
+
+    const nextBtn = document.getElementById("tour-btn-next");
+    nextBtn.textContent = idx === TOUR_STEPS.length - 1 ? "Finish 🎉" : "Next →";
+
+    repositionTour();
+  }
+
+  function repositionTour() {
+    if (!isTourActive) return;
+    const step = TOUR_STEPS[currentTourIndex];
+    if (!step) return;
+
+    let targetEl = document.querySelector(step.target);
+    if (!targetEl && step.target === "#groups-container") {
+      targetEl = document.querySelector(".right-pane-wrapper");
+    }
+    if (!targetEl) targetEl = document.querySelector(".left-pane");
+
+    targetEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+    const rect = targetEl.getBoundingClientRect();
+    const pad = 6;
+
+    const spotlight = document.getElementById("spotlight-cutout");
+    spotlight.style.top = `${Math.max(0, rect.top - pad)}px`;
+    spotlight.style.left = `${Math.max(0, rect.left - pad)}px`;
+    spotlight.style.width = `${Math.min(window.innerWidth, rect.width + pad * 2)}px`;
+    spotlight.style.height = `${Math.min(window.innerHeight, rect.height + pad * 2)}px`;
+
+    // Position Popover Tooltip
+    const popover = document.getElementById("tour-popover");
+    const popWidth = popover.offsetWidth || 320;
+    const popHeight = popover.offsetHeight || 190;
+
+    let popLeft = rect.left + (rect.width / 2) - (popWidth / 2);
+    popLeft = Math.max(16, Math.min(window.innerWidth - popWidth - 16, popLeft));
+
+    let popTop;
+    if (rect.bottom + popHeight + 16 < window.innerHeight) {
+      popTop = rect.bottom + 12;
+    } else if (rect.top - popHeight - 16 > 0) {
+      popTop = rect.top - popHeight - 12;
+    } else {
+      popTop = Math.max(16, (window.innerHeight / 2) - (popHeight / 2));
+      if (rect.left > popWidth + 24) {
+        popLeft = rect.left - popWidth - 14;
+      } else {
+        popLeft = rect.right + 14;
+      }
+      popLeft = Math.max(16, Math.min(window.innerWidth - popWidth - 16, popLeft));
+    }
+
+    popover.style.top = `${popTop}px`;
+    popover.style.left = `${popLeft}px`;
+  }
+
+  // Trigger first-run check
+  checkFirstRunTour();
 </script>
 
 </body>
