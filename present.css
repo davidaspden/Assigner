@@ -28,7 +28,7 @@ html, body {
 .title-container {
     text-align: center;
     margin: 1.25rem 1rem 0.25rem;
-    z-index: 10;
+    z-index: 500;
     position: relative;
 }
 
@@ -39,7 +39,7 @@ html, body {
     display: flex;
     align-items: flex-start;
     gap: 8px;
-    z-index: 25;
+    z-index: 520;
 }
 
 .permanent-qr-card {
@@ -177,11 +177,13 @@ button:not(:disabled):active {
     align-items: center;
     justify-content: space-between;
     gap: 1.5rem;
-    padding: 0.85rem 1.75rem max(1rem, env(safe-area-inset-bottom));
+    padding: 0.75rem 1.75rem max(0.85rem, env(safe-area-inset-bottom));
     background: #141210;
     border-top: 1px solid color-mix(in oklab, var(--fg) 12%, transparent);
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.35);
-    z-index: 20;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+    z-index: 500;
+    position: relative;
+    flex-shrink: 0;
 }
 
 .counter-box {
