@@ -224,27 +224,71 @@ function getContrastTheme(colorStr) {
     const yiq = (r * 299 + g * 587 + b * 114) / 1000;
     return yiq < 145 ? 'is-dark-theme' : 'is-light-theme';
 }
+function getInitials(name) {
+    if (!name) return "";
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+}
 
 function renderPlateInnerHtml(card) {
     const themeClass = getContrastTheme(card.color);
-    const count = (card.assigned || []).length;
+    const assignedList = Array.isArray(card.assigned) ? card.assigned : [];
+    const count = assignedList.length;
+    
     let colClass = "";
+    let densityClass = "density-normal";
+    
     if (count > 16) {
         colClass = "cols-3";
+        densityClass = "density-dense";
     } else if (count > 8) {
         colClass = "cols-2";
+        densityClass = "density-compact";
+    } else if (count <= 4 && count > 0) {
+        densityClass = "density-spacious";
     }
     
-    let assignedHtml = (card.assigned || []).map(name => `<li class="plate-assigned-li">${name}</li>`).join('');
-    let copyHtml = card.copy ? `<div class="plate-desc-bottom">${card.copy}</div>` : '';
-    
-    return `<article class="plate-face ${themeClass}" style="background-color: ${card.color || '#fff'}; display: flex; flex-direction: column; padding: 18px 20px; box-sizing: border-box; outline: 1px solid rgba(0,0,0,0.2); outline-offset: -1px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4), 0 18px 40px rgba(0, 0, 0, 0.45);">
-        <div class="plate-title" style="font-size: 1.45em; font-weight: bold; margin-bottom: 8px; border-bottom: 2px solid rgba(0,0,0,0.18); padding-bottom: 4px; text-align: center;">${card.title}</div>
+    let bodyHtml = "";
+    if (count === 0) {
+        bodyHtml = `
+        <div class="plate-empty-container">
+            <div class="plate-empty-badge">
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <line x1="23" y1="11" x2="17" y2="11"></line>
+                </svg>
+                <span>No staff assigned</span>
+            </div>
+        </div>`;
+    } else {
+        const sortedAssigned = [...assignedList].sort((a, b) => a.localeCompare(b));
+        const showInitials = count <= 8;
+        const assignedHtml = sortedAssigned.map(name => {
+            const initialHtml = showInitials ? `<span class="plate-initial">${getInitials(name)}</span>` : '';
+            return `<li class="plate-assigned-li ${densityClass}">${initialHtml}<span class="plate-name-text">${name}</span></li>`;
+        }).join('');
+        
+        bodyHtml = `
         <div class="plate-assigned-scroll" style="flex: 1; overflow-y: auto; min-height: 0;">
             <ul class="plate-assigned-ul ${colClass}">
                 ${assignedHtml}
             </ul>
+        </div>`;
+    }
+    
+    const countLabel = count === 1 ? '1 Person' : `${count} People`;
+    const copyHtml = card.copy ? `<div class="plate-desc-bottom">${card.copy}</div>` : '';
+    
+    return `<article class="plate-face ${themeClass}" style="background-color: ${card.color || '#fff'}; display: flex; flex-direction: column; padding: 14px 18px; box-sizing: border-box; outline: 1px solid rgba(0,0,0,0.18); outline-offset: -1px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4), 0 18px 40px rgba(0, 0, 0, 0.45);">
+        <div class="plate-header">
+            <h2 class="plate-title">${card.title || 'Untitled'}</h2>
+            <span class="plate-badge">${countLabel}</span>
         </div>
+        ${bodyHtml}
         ${copyHtml}
     </article>`;
 }
@@ -258,11 +302,11 @@ function unpackData(packed) {
                 title: json.t || "Staff Assignment",
                 banner: json.b || "",
                 groups: json.g.map((item, idx) => ({
-                    id: Date.now() + idx,
-                    title: item[0] || `Group ${idx + 1}`,
-                    assigned: Array.isArray(item[1]) ? item[1] : [],
-                    description: item[2] || "",
-                    color: item[3] || "#ffffff"
+                    id: idx + 1,
+                    title: item.t,
+                    color: item.c,
+                    assigned: item.a,
+                    copy: item.d
                 }))
             };
         }
@@ -324,13 +368,39 @@ function updateHeaderAndBanner() {
     const mainTitle = document.getElementById("main-title");
     if (mainTitle) mainTitle.innerText = assignerData.title || "Staff Assignment";
     
-    const bannerText = document.getElementById("banner-text");
-    if (bannerText) bannerText.innerText = assignerData.banner || "";
+    const bannerContainer = document.getElementById("banner-text");
+    if (bannerContainer) {
+        const text = assignerData.banner || "";
+        const currentText = bannerContainer.dataset.rawText || "";
+        if (text !== currentText) {
+            bannerContainer.dataset.rawText = text;
+            bannerContainer.innerHTML = `<span class="banner-content">${text}</span>`;
+            checkBannerOverflow();
+        }
+    }
     
     updateStatsSubtitle();
     updateTotalCount();
     updatePermanentQr();
 }
+
+function checkBannerOverflow() {
+    const bannerContainer = document.getElementById("banner-text");
+    if (!bannerContainer) return;
+    const contentEl = bannerContainer.querySelector(".banner-content");
+    if (!contentEl) return;
+    
+    contentEl.classList.remove("is-marquee");
+    contentEl.style.animationDuration = "";
+    
+    if (contentEl.scrollWidth > bannerContainer.clientWidth + 4) {
+        contentEl.classList.add("is-marquee");
+        const distance = contentEl.scrollWidth + bannerContainer.clientWidth;
+        const duration = Math.max(10, Math.round(distance / 65));
+        contentEl.style.animationDuration = `${duration}s`;
+    }
+}
+window.addEventListener("resize", checkBannerOverflow);
 
 function updateStatsSubtitle() {
     const statsEl = document.getElementById("stats-subtitle");

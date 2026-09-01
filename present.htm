@@ -315,13 +315,36 @@
       color: #f3eee6;
       padding: 10px 24px;
       text-align: center;
-      font-size: clamp(1rem, 1.5vw, 1.5rem);
+      font-size: clamp(0.95rem, 1.6vw, 1.4rem);
       font-weight: 600;
       z-index: 30;
       box-sizing: border-box;
       border-top: 1px solid rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(10px);
       box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.2rem;
+    }
+    .banner-inner {
+      display: inline-block;
+      white-space: nowrap;
+      text-align: center;
+      max-width: 100%;
+    }
+    .banner-inner.is-marquee {
+      position: absolute;
+      white-space: nowrap;
+      max-width: none;
+      padding-left: 100%;
+      animation: bannerTicker 18s linear infinite;
+      will-change: transform;
+    }
+    @keyframes bannerTicker {
+      0% { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(-100%, 0, 0); }
     }
     .banner:empty {
       display: none;
@@ -666,8 +689,14 @@
       const mainTitle = document.getElementById("main-title");
       const statsSubtitle = document.getElementById("stats-subtitle");
 
-      if (banner.innerText !== data.banner) {
-        banner.innerText = data.banner;
+      if (banner) {
+        const text = data.banner || "";
+        const currentText = banner.dataset.rawText || "";
+        if (text !== currentText) {
+          banner.dataset.rawText = text;
+          banner.innerHTML = `<span class="banner-inner">${text}</span>`;
+          checkGridBannerOverflow();
+        }
       }
 
       const displayTitle = data.title || "Staff Assignment";
@@ -741,27 +770,31 @@
         }
         ul.className = colClass;
 
-        const sortedAssigned = [...assignedList].sort((a, b) => a.localeCompare(b));
+        if (assignedList.length === 0) {
+          ul.innerHTML = `<li class="card-empty-state" style="background: transparent; border: none; font-style: italic; opacity: 0.6; text-align: center; padding: 12px 4px; pointer-events: none;">No staff assigned</li>`;
+        } else {
+          const sortedAssigned = [...assignedList].sort((a, b) => a.localeCompare(b));
 
-        let existingLis = Array.from(ul.querySelectorAll("li"));
-        let existingNames = existingLis.map(li => li.innerText);
+          let existingLis = Array.from(ul.querySelectorAll("li:not(.card-empty-state)"));
+          let existingNames = existingLis.map(li => li.innerText);
 
-        let isDifferent = sortedAssigned.length !== existingNames.length || sortedAssigned.some((name, i) => name !== existingNames[i]);
+          let isDifferent = sortedAssigned.length !== existingNames.length || sortedAssigned.some((name, i) => name !== existingNames[i]);
 
-        if (isDifferent) {
-          let newNodes = [];
+          if (isDifferent) {
+            let newNodes = [];
 
-          sortedAssigned.forEach(name => {
-            let li = existingLis.find(el => el.innerText === name);
-            if (!li) {
-              li = document.createElement("li");
-              li.innerText = name;
-            }
-            newNodes.push(li);
-          });
+            sortedAssigned.forEach(name => {
+              let li = existingLis.find(el => el.innerText === name);
+              if (!li) {
+                li = document.createElement("li");
+                li.innerText = name;
+              }
+              newNodes.push(li);
+            });
 
-          ul.innerHTML = "";
-          newNodes.forEach(li => ul.appendChild(li));
+            ul.innerHTML = "";
+            newNodes.forEach(li => ul.appendChild(li));
+          }
         }
 
         let descEl = card.querySelector(".card-desc");
@@ -779,6 +812,22 @@
 
       isFirstLoad = false;
     }
+
+    function checkGridBannerOverflow() {
+      const banner = document.getElementById("banner");
+      if (!banner) return;
+      const inner = banner.querySelector(".banner-inner");
+      if (!inner) return;
+      inner.classList.remove("is-marquee");
+      inner.style.animationDuration = "";
+      if (inner.scrollWidth > banner.clientWidth + 4) {
+        inner.classList.add("is-marquee");
+        const distance = inner.scrollWidth + banner.clientWidth;
+        const duration = Math.max(10, Math.round(distance / 65));
+        inner.style.animationDuration = `${duration}s`;
+      }
+    }
+    window.addEventListener("resize", checkGridBannerOverflow);
 
     function toggleFullscreen() {
       if (!document.fullscreenElement) {
