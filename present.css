@@ -315,8 +315,10 @@ button:not(:disabled):active {
     }
 }
 
-.plate-assigned-ul {
-    list-style: none;
+.plate-face {
+    container-type: size;
+}
+
 .plate-header {
     display: flex;
     align-items: center;
@@ -401,6 +403,42 @@ button:not(:disabled):active {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 4px;
+}
+
+/* Container Query: When Card Height is Shrunk/Constrained, Switch to 2 Columns */
+@container (max-height: 310px) {
+    .plate-header {
+        margin-bottom: 4px;
+        padding-bottom: 3px;
+    }
+    .plate-title {
+        font-size: clamp(0.95rem, 2.2vh, 1.25rem);
+    }
+    .plate-badge {
+        font-size: 0.68rem;
+        padding: 1px 5px;
+    }
+    .plate-assigned-ul:not(.cols-3) {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px;
+    }
+    .plate-assigned-li {
+        padding: 3px 6px !important;
+        font-size: clamp(0.72rem, 1.8vh, 0.88rem) !important;
+        gap: 4px !important;
+        border-radius: 4px;
+    }
+    .plate-initial {
+        width: 19px !important;
+        height: 19px !important;
+        font-size: 0.62rem !important;
+    }
+    .plate-desc-bottom {
+        margin-top: 4px !important;
+        padding-top: 3px !important;
+        font-size: 0.74rem !important;
+    }
 }
 
 .plate-assigned-scroll {

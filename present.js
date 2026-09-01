@@ -560,6 +560,20 @@ window.addEventListener("message", (e) => {
     }
 });
 
+function adaptPlateColumns() {
+    document.querySelectorAll(".plate-assigned-scroll").forEach(scrollEl => {
+        const ul = scrollEl.querySelector(".plate-assigned-ul");
+        if (!ul) return;
+        const items = ul.querySelectorAll("li");
+        if (!ul.classList.contains("cols-2") && !ul.classList.contains("cols-3") && items.length >= 4) {
+            if (scrollEl.scrollHeight > scrollEl.clientHeight + 2) {
+                ul.classList.add("cols-2");
+            }
+        }
+    });
+}
+window.addEventListener("resize", adaptPlateColumns);
+
 function draw() {
     if (!stage) return;
     // Spread calculation: 10% wider with less overlap
@@ -578,6 +592,7 @@ function draw() {
         el.classList.toggle("is-front", i === focus);
         el.setAttribute("aria-selected", i === focus ? "true" : "false");
     }
+    adaptPlateColumns();
     if (focus !== lastFocus) {
         const isInitial = lastFocus === -1;
         lastFocus = focus;

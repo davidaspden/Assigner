@@ -103,6 +103,27 @@
       justify-content: space-between;
       min-height: 180px;
       box-sizing: border-box;
+      container-type: size;
+    }
+
+    /* Container query: Switch to 2 columns if card height shrinks */
+    @container (max-height: 280px) {
+      .card-header-box {
+        padding-bottom: 4px;
+        margin-bottom: 5px;
+      }
+      .card-title {
+        font-size: clamp(0.95rem, 2.2vh, 1.25rem);
+      }
+      .card-assigned ul:not(.cols-3) {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 4px !important;
+      }
+      .card-assigned li {
+        padding: 3px 6px !important;
+        font-size: clamp(0.72rem, 1.8vh, 0.85rem) !important;
+      }
     }
 
     .card-header-box {
@@ -810,8 +831,23 @@
         }
       });
 
+      adaptGridColumns();
       isFirstLoad = false;
     }
+
+    function adaptGridColumns() {
+      document.querySelectorAll(".card-assigned").forEach(box => {
+        const ul = box.querySelector("ul");
+        if (!ul) return;
+        const items = ul.querySelectorAll("li:not(.card-empty-state)");
+        if (!ul.classList.contains("cols-2") && !ul.classList.contains("cols-3") && items.length >= 4) {
+          if (box.scrollHeight > box.clientHeight + 2) {
+            ul.classList.add("cols-2");
+          }
+        }
+      });
+    }
+    window.addEventListener("resize", adaptGridColumns);
 
     function checkGridBannerOverflow() {
       const banner = document.getElementById("banner");
