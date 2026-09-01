@@ -228,11 +228,10 @@ function getContrastTheme(colorStr) {
 function renderPlateInnerHtml(card) {
     const themeClass = getContrastTheme(card.color);
     const count = (card.assigned || []).length;
-    const isShortScreen = window.innerHeight <= 720;
     let colClass = "";
-    if (count >= 14 || (isShortScreen && count >= 10)) {
+    if (count > 16) {
         colClass = "cols-3";
-    } else if (count >= 7 || (isShortScreen && count >= 5)) {
+    } else if (count > 8) {
         colClass = "cols-2";
     }
     
@@ -369,17 +368,22 @@ function shortestDelta(from, to) { return fract(to - from + 0.5) - 0.5; }
 
 function poseFor(u, spread) {
     const d = u * 2 - 1;          // -1 left … 0 front … +1 right
-    const d2 = d * d;
     const edge = Math.abs(d);
-    const fade = edge > 0.91 ? Math.max(0, 1 - (edge - 0.91) / 0.09) : 1;
-    const wing = 0.66 + 0.34 * (1 - edge * 0.3);
+    const fade = edge > 0.92 ? Math.max(0, 1 - (edge - 0.92) / 0.08) : 1;
+    const wing = 0.70 + 0.30 * (1 - edge * 0.35);
+    
+    // Smooth power curve: immediate 3D tilt outside center for true carousel depth
+    const rot = reduced ? 0 : -MAX_ROT * Math.sign(d) * Math.pow(edge, 0.65);
+    const zDepth = reduced ? 0 : Math.pow(Math.max(0, 1 - edge), 1.25) * 280;
+    const cardScale = 0.72 + 0.28 * Math.pow(Math.max(0, 1 - edge), 1.15);
+
     return {
         x: d * spread,
-        z: reduced ? 0 : (1 - d2) * 230, // Deeper 3D perspective curve
-        rotateY: reduced ? 0 : -MAX_ROT * d * (0.35 + 0.65 * d2),
-        scale: 0.78 + 0.22 * (1 - d2),
+        z: zDepth,
+        rotateY: rot,
+        scale: cardScale,
         opacity: fade * wing,
-        zIndex: Math.round((1 - edge) * 200),
+        zIndex: Math.round((1 - edge) * 300),
     };
 }
 

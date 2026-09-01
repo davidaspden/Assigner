@@ -3,8 +3,8 @@
     --surface: #141210;
     --fg: #f3eee6;
     --muted: #9a9284;
-    --card-w: clamp(13.5rem, 25vw, 24rem);
-    --card-h: clamp(20rem, 64vh, 35rem);
+    --card-w: clamp(14rem, 21vw, 21rem);
+    --card-h: clamp(17rem, 58vh, 29rem);
 }
 
 * { box-sizing: border-box; }
@@ -612,8 +612,8 @@ button:not(:disabled):active {
 /* Kiosk & Low-Height Responsive Profiles (e.g. 582px Laptop / Wall Displays) */
 @media (max-height: 720px) {
     :root {
-        --card-w: clamp(10rem, 20vw, 16rem);
-        --card-h: clamp(13rem, 52vh, 20rem);
+        --card-w: clamp(11rem, 18vw, 15.5rem);
+        --card-h: clamp(12rem, 48vh, 18.5rem);
     }
     .title-container {
         margin: 0.35rem 1rem 0.1rem;
