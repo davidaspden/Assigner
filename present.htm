@@ -273,6 +273,39 @@
     .card-assigned li:nth-child(9)::after { animation-delay: 2.1s; }
     .card-assigned li:nth-child(10)::after { animation-delay: 2.35s; }
 
+    .title-header-container {
+      position: relative;
+      text-align: center;
+      padding: 16px 1rem 0;
+    }
+    .main-title {
+      margin: 0;
+      z-index: 2;
+      position: relative;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      color: var(--fg);
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+      line-height: 1.15;
+    }
+    .stats-subtitle {
+      margin: 4px 0 10px 0;
+      z-index: 2;
+      position: relative;
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .top-tools-bar {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      z-index: 25;
+    }
     .banner {
       position: fixed;
       bottom: 0;
@@ -280,15 +313,18 @@
       width: 100%;
       background-color: rgba(20, 18, 16, 0.94);
       color: #f3eee6;
-      padding: 12px 24px;
+      padding: 10px 24px;
       text-align: center;
-      font-size: clamp(1.1rem, 1.6vw, 1.6rem);
+      font-size: clamp(1rem, 1.5vw, 1.5rem);
       font-weight: 600;
       z-index: 30;
       box-sizing: border-box;
       border-top: 1px solid rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(10px);
       box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+    }
+    .banner:empty {
+      display: none;
     }
     .permanent-qr-card {
       background: rgba(20, 18, 16, 0.75);
@@ -341,6 +377,102 @@
       z-index: 1;
       user-select: none;
     }
+
+    /* Kiosk & Low-Height Responsive Profiles (e.g. 582px Laptop / Wall Kiosks) */
+    @media (max-height: 720px) {
+      .title-header-container {
+        padding: 6px 1rem 0;
+      }
+      .main-title {
+        font-size: clamp(1.25rem, 3.8vh, 1.85rem);
+      }
+      .stats-subtitle {
+        margin: 2px 0 4px 0;
+        font-size: 0.76rem;
+      }
+      .top-tools-bar {
+        top: 0.35rem;
+        right: 0.85rem;
+        gap: 6px;
+      }
+      .permanent-qr-card {
+        padding: 3px 4px;
+      }
+      #permanent-qr img {
+        width: 44px !important;
+        height: 44px !important;
+      }
+      .qr-label {
+        font-size: 0.55rem;
+        margin-top: 1px;
+      }
+      #live-clock {
+        font-size: 0.95rem;
+        padding: 2px 8px;
+      }
+      .main-content {
+        padding: 6px clamp(8px, 1.8vw, 20px) 55px;
+        gap: 10px;
+      }
+      .card {
+        padding: 8px 12px 8px;
+        min-height: 0;
+        border-radius: 10px;
+      }
+      .card-header-box {
+        padding-bottom: 4px;
+        margin-bottom: 6px;
+      }
+      .card-title {
+        font-size: clamp(0.95rem, 2.2vh, 1.25rem);
+      }
+      .card-count-badge {
+        font-size: 0.72rem;
+        padding: 1px 5px;
+      }
+      .card-assigned ul {
+        gap: 3px;
+      }
+      .card-assigned li {
+        padding: 3px 7px;
+        font-size: clamp(0.72rem, 1.8vh, 0.88rem);
+        border-radius: 4px;
+      }
+      .card-desc {
+        font-size: 0.74rem;
+        margin-top: 5px;
+        padding-top: 3px;
+        line-height: 1.2;
+      }
+      .banner {
+        padding: 6px 16px;
+        font-size: clamp(0.95rem, 2.4vh, 1.25rem);
+      }
+    }
+
+    @media (max-height: 560px) {
+      .main-title {
+        font-size: 1.15rem;
+      }
+      .stats-subtitle {
+        display: none;
+      }
+      .top-tools-bar {
+        top: 0.2rem;
+        right: 0.5rem;
+      }
+      .main-content {
+        padding: 4px 10px 45px;
+        gap: 8px;
+      }
+      .card {
+        padding: 6px 10px 6px;
+      }
+      .card-assigned li {
+        padding: 2px 5px;
+        font-size: 0.72rem;
+      }
+    }
   </style>
 </head>
 
@@ -359,14 +491,10 @@
     </svg>
   </div>
 
-  <div style="position: relative; text-align: center;">
-    <h1 id="main-title"
-      style="margin: 24px 0 0 0; z-index: 2; position: relative; font-size: 2.6em; color: var(--fg); text-shadow: 2px 2px 8px rgba(0,0,0,0.6);">
-    </h1>
-    <p id="stats-subtitle"
-      style="margin: 6px 0 16px 0; z-index: 2; position: relative; font-size: 1em; color: var(--muted); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;">
-    </p>
-    <div style="position: absolute; top: 1.25rem; right: 1.5rem; display: flex; gap: 8px; align-items: flex-start; z-index: 25;">
+  <div class="title-header-container">
+    <h1 id="main-title" class="main-title"></h1>
+    <p id="stats-subtitle" class="stats-subtitle"></p>
+    <div class="top-tools-bar">
       <div id="permanent-qr-card" class="permanent-qr-card">
         <div id="permanent-qr"></div>
         <span class="qr-label">Mobile Roster</span>
@@ -604,7 +732,14 @@
         if (countBadge) countBadge.innerText = assignedList.length;
 
         const ul = card.querySelector("ul");
-        ul.className = assignedList.length >= 16 ? "cols-3" : (assignedList.length >= 8 ? "cols-2" : "");
+        const isShortScreen = window.innerHeight <= 720;
+        let colClass = "";
+        if (assignedList.length >= 14 || (isShortScreen && assignedList.length >= 10)) {
+          colClass = "cols-3";
+        } else if (assignedList.length >= 7 || (isShortScreen && assignedList.length >= 5)) {
+          colClass = "cols-2";
+        }
+        ul.className = colClass;
 
         const sortedAssigned = [...assignedList].sort((a, b) => a.localeCompare(b));
 

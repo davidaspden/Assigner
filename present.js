@@ -228,10 +228,11 @@ function getContrastTheme(colorStr) {
 function renderPlateInnerHtml(card) {
     const themeClass = getContrastTheme(card.color);
     const count = (card.assigned || []).length;
+    const isShortScreen = window.innerHeight <= 720;
     let colClass = "";
-    if (count > 16) {
+    if (count >= 14 || (isShortScreen && count >= 10)) {
         colClass = "cols-3";
-    } else if (count > 8) {
+    } else if (count >= 7 || (isShortScreen && count >= 5)) {
         colClass = "cols-2";
     }
     

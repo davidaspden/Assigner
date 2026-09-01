@@ -609,6 +609,82 @@ button:not(:disabled):active {
     }
 }
 
+/* Kiosk & Low-Height Responsive Profiles (e.g. 582px Laptop / Wall Displays) */
+@media (max-height: 720px) {
+    :root {
+        --card-w: clamp(10rem, 20vw, 16rem);
+        --card-h: clamp(13rem, 52vh, 20rem);
+    }
+    .title-container {
+        margin: 0.35rem 1rem 0.1rem;
+    }
+    .main-title {
+        font-size: clamp(1.25rem, 3.5vh, 1.85rem) !important;
+    }
+    .stats-subtitle {
+        font-size: 0.72rem;
+        margin-top: 1px;
+    }
+    .top-corner-tools {
+        top: 0.25rem;
+        right: 0.75rem;
+        gap: 6px;
+    }
+    .permanent-qr-card {
+        padding: 2px 4px;
+    }
+    #permanent-qr img {
+        width: 44px !important;
+        height: 44px !important;
+    }
+    .qr-label {
+        font-size: 0.55rem;
+        margin-top: 1px;
+    }
+    .live-clock {
+        font-size: 0.9rem;
+        padding: 2px 6px;
+    }
+    .plate-face {
+        padding: 8px 12px 6px !important;
+        border-radius: 12px;
+    }
+    .plate-title {
+        font-size: clamp(1rem, 2.4vh, 1.35rem) !important;
+        margin-bottom: 4px !important;
+        padding-bottom: 3px !important;
+    }
+    .plate-assigned-ul {
+        gap: 3px !important;
+    }
+    .plate-assigned-li {
+        padding: 3px 6px !important;
+        font-size: clamp(0.72rem, 1.8vh, 0.86rem) !important;
+        border-radius: 4px;
+    }
+    .plate-desc-bottom {
+        padding-top: 3px !important;
+        margin-top: 4px !important;
+        font-size: 0.72rem !important;
+    }
+    .banner-bar {
+        padding: 6px 16px;
+        font-size: clamp(0.9rem, 2.2vh, 1.2rem);
+    }
+}
+
+@media (max-height: 560px) {
+    .main-title {
+        font-size: 1.15rem !important;
+    }
+    .stats-subtitle {
+        display: none;
+    }
+    .plate-face {
+        padding: 6px 8px 4px !important;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .stage {
         perspective: none;
