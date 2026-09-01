@@ -543,7 +543,7 @@
       const qrContainer = document.getElementById("permanent-qr");
       if (!qrCard || !qrContainer || !latestData) return;
       
-      if (latestData.showQr === false) {
+      if (!latestData.showQr) {
         qrCard.style.display = "none";
         return;
       }

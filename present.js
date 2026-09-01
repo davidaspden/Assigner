@@ -158,7 +158,7 @@ function updatePermanentQr() {
     const qrContainer = document.getElementById("permanent-qr");
     if (!qrCard || !qrContainer) return;
     
-    if (assignerData.showQr === false) {
+    if (!assignerData.showQr) {
         qrCard.style.display = "none";
         return;
     }

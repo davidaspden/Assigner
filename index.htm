@@ -745,7 +745,7 @@
     
     <h3 style="margin: 6px 0 3px;">Live Preview</h3>
     <div class="preview-container" onclick="openPresentation()">
-      <iframe src="present.htm" class="preview-iframe"></iframe>
+      <iframe src="present2.htm" class="preview-iframe"></iframe>
       <div class="preview-overlay">
         <!-- Present icon -->
         <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="white">
@@ -758,11 +758,11 @@
     <div id="view-setup" style="margin-top: 10px; margin-bottom: 10px; font-size: 0.9em; padding: 8px; background: rgba(0,0,0,0.05); border-radius: 4px;">
       <strong style="display: block; margin-bottom: 5px;">Presentation View:</strong>
       <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; margin-bottom: 5px;">
-        <input type="radio" name="presentation-view" value="present.htm" checked onchange="document.querySelector('.preview-iframe').src = this.value">
+        <input type="radio" name="presentation-view" value="present.htm" onchange="document.querySelector('.preview-iframe').src = this.value">
         Grid View
       </label>
       <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; margin-bottom: 6px;">
-        <input type="radio" name="presentation-view" value="present2.htm" onchange="document.querySelector('.preview-iframe').src = this.value">
+        <input type="radio" name="presentation-view" value="present2.htm" checked onchange="document.querySelector('.preview-iframe').src = this.value">
         Accordion View (Sweep)
       </label>
       
@@ -780,7 +780,7 @@
       </div>
 
       <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; border-top: 1px solid rgba(0,0,0,0.08); padding-top: 6px;">
-        <input type="checkbox" id="show-qr-toggle" checked onchange="toggleShowQr(this.checked)">
+        <input type="checkbox" id="show-qr-toggle" onchange="toggleShowQr(this.checked)">
         Display Mobile QR Code on Presentation
       </label>
       <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(0,0,0,0.08); padding-top: 6px; margin-top: 6px;">
@@ -1088,11 +1088,12 @@
       data = JSON.parse(saved);
       if(data.unassigned) delete data.unassigned;
       if(!data.title) data.title = "Staff Assignment";
+      if(data.showQr === undefined) data.showQr = false;
     } else {
-      data = { groups: [{ id: 1, title: "Group 1", color: colors[0], assigned: [] }], banner: "Please go to the following departments. We are the best. The best of the best. Show 'em how it is done.", title: "Staff Assignment" };
+      data = { groups: [{ id: 1, title: "Group 1", color: colors[0], assigned: [] }], banner: "Please go to the following departments. We are the best. The best of the best. Show 'em how it is done.", title: "Staff Assignment", showQr: false };
     }
     const qrToggle = document.getElementById("show-qr-toggle");
-    if (qrToggle) qrToggle.checked = (data.showQr !== false);
+    if (qrToggle) qrToggle.checked = Boolean(data.showQr);
 
     const soundToggle = document.getElementById("sound-toggle");
     if (soundToggle) soundToggle.checked = (data.soundEnabled !== false);
@@ -1140,7 +1141,7 @@
       if (parsed.showQr !== undefined && parsed.showQr !== data.showQr) {
         data.showQr = parsed.showQr;
         const qrToggle = document.getElementById("show-qr-toggle");
-        if (qrToggle) qrToggle.checked = (data.showQr !== false);
+        if (qrToggle) qrToggle.checked = Boolean(data.showQr);
       }
       if (parsed.sweepSpeed !== undefined && parsed.sweepSpeed !== data.sweepSpeed) {
         data.sweepSpeed = parsed.sweepSpeed;
@@ -1936,7 +1937,7 @@
 
   function openPresentation() {
     const viewInput = document.querySelector('input[name="presentation-view"]:checked');
-    const selectedView = viewInput ? viewInput.value : 'present.htm';
+    const selectedView = viewInput ? viewInput.value : 'present2.htm';
     
     let features = 'popup=1';
     if (availableScreens.length > 0 && selectedMonitor !== null) {
@@ -1987,7 +1988,7 @@
       target: "#view-setup",
       badge: "Step 6/7",
       title: "Views, Speed & Launch",
-      body: "Choose between <strong>Grid View</strong> or the <strong>3D Accordion Sweep</strong>. Use the <strong>Sweep Speed slider</strong> to control rotation pace (1.5s–10s per station), toggle audio chimes, and click the live preview above to launch full-screen!"
+      body: "Choose between <strong>3D Accordion Sweep</strong> or <strong>Grid View</strong>. Use the <strong>Sweep Speed slider</strong> to control rotation pace (1.5s–10s per station), toggle audio chimes, and click the live preview above to launch full-screen!"
     },
     {
       target: ".header-actions",
@@ -2020,7 +2021,7 @@
         title: data.title || "Staff Assignment",
         banner: data.banner || "",
         soundEnabled: data.soundEnabled !== false,
-        showQrOnPresent: data.showQrOnPresent !== false,
+        showQr: false,
         groups: [
           {
             id: Date.now(),
