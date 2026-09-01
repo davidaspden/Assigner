@@ -430,13 +430,7 @@ button:not(:disabled):active {
     .plate-assigned-li {
         padding: 3px 6px !important;
         font-size: clamp(0.72rem, 1.8vh, 0.88rem) !important;
-        gap: 4px !important;
         border-radius: 4px;
-    }
-    .plate-initial {
-        width: 19px !important;
-        height: 19px !important;
-        font-size: 0.62rem !important;
     }
     .plate-desc-bottom {
         margin-top: 4px !important;
@@ -466,35 +460,7 @@ button:not(:disabled):active {
     border-radius: 6px;
     overflow: hidden;
     background: rgba(255, 255, 255, 0.22);
-    display: flex;
-    align-items: center;
-    gap: 7px;
-}
-
-.plate-initial {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    font-size: 0.68rem;
-    font-weight: 700;
-    background: rgba(0, 0, 0, 0.12);
-    color: inherit;
-    flex-shrink: 0;
-    letter-spacing: -0.02em;
-}
-
-.is-dark-theme .plate-initial {
-    background: rgba(255, 255, 255, 0.22);
-}
-
-.plate-name-text {
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    text-align: left;
 }
 
 /* Density Profiles for Harmonious Slide Utilization */
@@ -503,11 +469,6 @@ button:not(:disabled):active {
     font-size: clamp(1.02rem, 2.2vh, 1.2rem);
     margin-bottom: 3px;
     border-radius: 8px;
-}
-.plate-assigned-li.density-spacious .plate-initial {
-    width: 26px;
-    height: 26px;
-    font-size: 0.76rem;
 }
 
 .plate-assigned-li.density-normal {
@@ -518,7 +479,6 @@ button:not(:disabled):active {
 .plate-assigned-li.density-compact {
     padding: 4px 7px;
     font-size: clamp(0.78rem, 1.7vh, 0.92rem);
-    gap: 4px;
 }
 
 .plate-assigned-li.density-dense {

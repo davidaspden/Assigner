@@ -224,14 +224,6 @@ function getContrastTheme(colorStr) {
     const yiq = (r * 299 + g * 587 + b * 114) / 1000;
     return yiq < 145 ? 'is-dark-theme' : 'is-light-theme';
 }
-function getInitials(name) {
-    if (!name) return "";
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) {
-        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-    return name.slice(0, 2).toUpperCase();
-}
 
 function renderPlateInnerHtml(card) {
     const themeClass = getContrastTheme(card.color);
@@ -266,11 +258,8 @@ function renderPlateInnerHtml(card) {
             </div>
         </div>`;
     } else {
-        const sortedAssigned = [...assignedList].sort((a, b) => a.localeCompare(b));
-        const showInitials = count <= 8;
         const assignedHtml = sortedAssigned.map(name => {
-            const initialHtml = showInitials ? `<span class="plate-initial">${getInitials(name)}</span>` : '';
-            return `<li class="plate-assigned-li ${densityClass}">${initialHtml}<span class="plate-name-text">${name}</span></li>`;
+            return `<li class="plate-assigned-li ${densityClass}">${name}</li>`;
         }).join('');
         
         bodyHtml = `
