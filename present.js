@@ -258,6 +258,7 @@ function renderPlateInnerHtml(card) {
             </div>
         </div>`;
     } else {
+        const sortedAssigned = [...assignedList].sort((a, b) => a.localeCompare(b));
         const assignedHtml = sortedAssigned.map(name => {
             return `<li class="plate-assigned-li ${densityClass}">${name}</li>`;
         }).join('');
