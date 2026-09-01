@@ -782,11 +782,11 @@
         if (countBadge) countBadge.innerText = assignedList.length;
 
         const ul = card.querySelector("ul");
-        const isShortScreen = window.innerHeight <= 720;
+        const isShortScreen = window.innerHeight <= 760;
         let colClass = "";
-        if (assignedList.length >= 14 || (isShortScreen && assignedList.length >= 10)) {
+        if (assignedList.length >= 13 || (isShortScreen && assignedList.length >= 10)) {
           colClass = "cols-3";
-        } else if (assignedList.length >= 7 || (isShortScreen && assignedList.length >= 5)) {
+        } else if (assignedList.length >= 5) {
           colClass = "cols-2";
         }
         ul.className = colClass;

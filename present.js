@@ -238,17 +238,18 @@ function renderPlateInnerHtml(card) {
     const assignedList = Array.isArray(card.assigned) ? card.assigned : [];
     const count = assignedList.length;
     
+    const isShortScreen = window.innerHeight <= 760;
     let colClass = "";
     let densityClass = "density-normal";
     
-    if (count > 16) {
+    if (count >= 13 || (isShortScreen && count >= 10)) {
         colClass = "cols-3";
         densityClass = "density-dense";
-    } else if (count > 8) {
+    } else if (count >= 5) {
         colClass = "cols-2";
-        densityClass = "density-compact";
-    } else if (count <= 4 && count > 0) {
-        densityClass = "density-spacious";
+        densityClass = count >= 8 ? "density-compact" : "density-normal";
+    } else if (count > 0) {
+        densityClass = isShortScreen ? "density-normal" : "density-spacious";
     }
     
     let bodyHtml = "";

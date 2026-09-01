@@ -442,13 +442,14 @@ button:not(:disabled):active {
 }
 
 .plate-assigned-scroll {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
-    padding-right: 2px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-right: 0;
+    overflow-y: hidden;
 }
 
-.is-dark-theme .plate-assigned-scroll {
-    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+.plate-assigned-scroll::-webkit-scrollbar {
+    display: none;
 }
 
 .plate-assigned-li {
